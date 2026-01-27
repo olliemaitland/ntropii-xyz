@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import useSWR from "swr"
 import {
   LayoutDashboard,
   Layers,
@@ -19,15 +20,10 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSkeleton,
 } from "@/components/ui/sidebar"
 import { Logo } from "@/components/layout/logo"
-
-const protocols = [
-  { name: "Maple Finance", href: "/protocols/maple" },
-  { name: "Centrifuge", href: "/protocols/centrifuge" },
-  { name: "Goldfinch", href: "/protocols/goldfinch" },
-  { name: "Trufi", href: "/protocols/trufi" },
-]
+import { getProtocols } from "@/lib/api/services"
 
 const creditDesk = [
   { name: "Available pools", href: "/credit-desk/pools", icon: Layers },
@@ -36,6 +32,7 @@ const creditDesk = [
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const { data: protocols, isLoading: protocolsLoading } = useSWR("protocols", getProtocols)
 
   return (
     <Sidebar collapsible="icon">
@@ -69,19 +66,28 @@ export function AppSidebar() {
           <SidebarGroupLabel>Protocols</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {protocols.map((protocol) => (
-                <SidebarMenuItem key={protocol.name}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === protocol.href}
-                    tooltip={protocol.name}
-                  >
-                    <Link href={protocol.href}>
-                      <span>{protocol.name}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {protocolsLoading ? (
+                <>
+                  <SidebarMenuSkeleton />
+                  <SidebarMenuSkeleton />
+                  <SidebarMenuSkeleton />
+                  <SidebarMenuSkeleton />
+                </>
+              ) : (
+                protocols?.map((protocol) => (
+                  <SidebarMenuItem key={protocol.id}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === `/protocols/${protocol.id}`}
+                      tooltip={protocol.name}
+                    >
+                      <Link href={`/protocols/${protocol.id}`}>
+                        <span>{protocol.name}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
