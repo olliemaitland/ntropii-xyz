@@ -1,8 +1,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { CanvasHeader } from "@/components/layout/canvas-header"
 
 export default function DashboardPage() {
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex h-full flex-col">
+      <CanvasHeader />
+      <div className="flex flex-1 flex-col gap-6 overflow-auto p-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           Dashboard
@@ -84,6 +87,7 @@ export default function DashboardPage() {
             </div>
           </CardContent>
         </Card>
+      </div>
       </div>
     </div>
   )
