@@ -10,7 +10,6 @@ import { CanvasSidebar } from "@/components/layout/canvas-sidebar";
 import { PoolEventsTable } from "@/components/protocol/pool-events-table";
 import { LoansTable } from "@/components/protocol/loans-table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getProtocol, getPoolEvents, getLoans } from "@/lib/api/services";
 import type { BreadcrumbItem } from "@/components/layout/breadcrumb";
 
@@ -96,46 +95,35 @@ export default function ProtocolPage() {
                 </p>
               </div>
 
-              <Tabs defaultValue="events" className="w-full">
-                <TabsList>
-                  <TabsTrigger value="events">Pool Events</TabsTrigger>
-                  <TabsTrigger value="loans">Loans ({loansResponse?.data.length || 0})</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="events" className="mt-4">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Recent Events</CardTitle>
-                      <CardDescription>
-                        Deposits, withdrawals, and other activity for this pool
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <PoolEventsTable
-                        events={eventsResponse?.data || []}
-                        isLoading={eventsLoading}
-                      />
-                    </CardContent>
-                  </Card>
-                </TabsContent>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Events</CardTitle>
+                  <CardDescription>
+                    Deposits, withdrawals, and other activity for this pool
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <PoolEventsTable
+                    events={eventsResponse?.data || []}
+                    isLoading={eventsLoading}
+                  />
+                </CardContent>
+              </Card>
 
-                <TabsContent value="loans" className="mt-4">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Active Loans</CardTitle>
-                      <CardDescription>
-                        Current and historical loans for this pool
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <LoansTable
-                        loans={loansResponse?.data || []}
-                        isLoading={loansLoading}
-                      />
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-              </Tabs>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Active Loans ({loansResponse?.data.length || 0})</CardTitle>
+                  <CardDescription>
+                    Current and historical loans for this pool
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <LoansTable
+                    loans={loansResponse?.data || []}
+                    isLoading={loansLoading}
+                  />
+                </CardContent>
+              </Card>
             </div>
           ) : (
             <div className="flex h-full items-center justify-center text-muted-foreground">
