@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import useSWR from "swr";
 import { notFound } from "next/navigation";
 import { CanvasHeader } from "@/components/layout/canvas-header";
@@ -9,9 +9,12 @@ import { CanvasSidebarHeader } from "@/components/layout/canvas-sidebar-header";
 import { CanvasSidebar } from "@/components/layout/canvas-sidebar";
 import { PoolEventsTable } from "@/components/protocol/pool-events-table";
 import { LoansTable } from "@/components/protocol/loans-table";
+import { PoolDetailsCard } from "@/components/protocol/pool-details-card";
+import { CapitalFlowChart } from "@/components/protocol/capital-flow-chart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getProtocol, getPoolEvents, getLoans } from "@/lib/api/services";
+import { getProtocol, getPoolEvents, getLoans, getPoolCapitalFlows, getPoolExtendedData } from "@/lib/api/services";
 import type { BreadcrumbItem } from "@/components/layout/breadcrumb";
+import type { CapitalFlowFilters } from "@/lib/api/types";
 
 export default function ProtocolPage() {
   const params = useParams();
@@ -39,6 +42,29 @@ export default function ProtocolPage() {
   const { data: loansResponse, isLoading: loansLoading } = useSWR(
     selectedPoolId ? `pool-loans-${selectedPoolId}` : null,
     () => getLoans({ poolId: selectedPoolId! })
+  );
+
+  const [capitalFlowPeriod, setCapitalFlowPeriod] = useState(90);
+
+  const capitalFlowFilters: CapitalFlowFilters = useMemo(() => {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - capitalFlowPeriod);
+    return {
+      granularity: capitalFlowPeriod <= 30 ? "daily" : capitalFlowPeriod <= 90 ? "daily" : "weekly",
+      start_date: startDate.toISOString().split("T")[0],
+      end_date: endDate.toISOString().split("T")[0],
+    };
+  }, [capitalFlowPeriod]);
+
+  const { data: capitalFlowsResponse, isLoading: capitalFlowsLoading } = useSWR(
+    selectedPoolId ? `pool-capital-flows-${selectedPoolId}-${capitalFlowPeriod}` : null,
+    () => getPoolCapitalFlows(selectedPoolId!, capitalFlowFilters)
+  );
+
+  const { data: extendedPool } = useSWR(
+    selectedPoolId ? `pool-extended-${selectedPoolId}` : null,
+    () => getPoolExtendedData(selectedPoolId!)
   );
 
   if (protocolLoading) {
@@ -86,14 +112,17 @@ export default function ProtocolPage() {
         <main className="flex-1 overflow-auto p-6">
           {selectedPool ? (
             <div className="space-y-6">
-              <div>
-                <h1 className="text-2xl font-semibold text-foreground">{selectedPool.name}</h1>
-                <p className="text-sm text-muted-foreground">
-                  {selectedPool.assetClass.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())} | 
-                  Min deposit: ${selectedPool.minDeposit.toLocaleString()} | 
-                  Lockup: {selectedPool.lockupPeriodDays > 0 ? `${selectedPool.lockupPeriodDays} days` : "None"}
-                </p>
-              </div>
+              <PoolDetailsCard
+                pool={selectedPool}
+                extendedPool={extendedPool}
+                capitalFlowData={capitalFlowsResponse?.data}
+              />
+
+              <CapitalFlowChart
+                data={capitalFlowsResponse?.data || []}
+                isLoading={capitalFlowsLoading}
+                onPeriodChange={setCapitalFlowPeriod}
+              />
 
               <Card>
                 <CardHeader>

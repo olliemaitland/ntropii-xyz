@@ -136,3 +136,84 @@ export interface EventFilters {
   page?: number;
   pageSize?: number;
 }
+
+// Capital Flow Types
+export interface CapitalFlowInflows {
+  deposits: string;
+  loan_repayments: string;
+  total: string;
+}
+
+export interface CapitalFlowOutflows {
+  withdrawals: string;
+  loan_drawdowns: string;
+  defaults: string;
+  total: string;
+}
+
+export interface CapitalFlowData {
+  date: string;
+  inflows: CapitalFlowInflows;
+  outflows: CapitalFlowOutflows;
+  net_flow: string;
+  cumulative_position: string;
+}
+
+export interface CapitalFlowSummary {
+  period_start: string;
+  period_end: string;
+  total_inflows: string;
+  total_outflows: string;
+  net_change: string;
+  current_position: string;
+}
+
+export type CapitalFlowGranularity = "daily" | "weekly" | "monthly";
+
+export interface CapitalFlowFilters {
+  granularity?: CapitalFlowGranularity;
+  start_date?: string;
+  end_date?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface CapitalFlowResponse {
+  pool_id: string;
+  granularity: CapitalFlowGranularity;
+  data: CapitalFlowData[];
+  summary: CapitalFlowSummary;
+  pagination: {
+    total: number;
+    limit: number;
+    offset: number;
+  };
+}
+
+// Extended Pool Types with new fields from API spec
+export interface PoolAsset {
+  address: string;
+  symbol: string;
+  decimals: number;
+}
+
+export interface PoolManagers {
+  pool_manager: string;
+  loan_manager: string;
+  withdrawal_manager: string;
+}
+
+export interface LoanSummary {
+  total: number;
+  active: number;
+  repaid: number;
+  defaulted: number;
+}
+
+export interface PoolExtended extends Pool {
+  address?: string;
+  asset?: PoolAsset;
+  managers?: PoolManagers;
+  loan_summary?: LoanSummary;
+  nav?: number;
+}

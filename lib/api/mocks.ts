@@ -7,6 +7,10 @@ import type {
   Loan,
   PoolEvent,
   LoanEvent,
+  CapitalFlowResponse,
+  CapitalFlowGranularity,
+  CapitalFlowFilters,
+  PoolExtended,
 } from "./types";
 
 // Mock Protocols
@@ -529,4 +533,191 @@ export function getPoolWithLoans(poolId: string): PoolWithLoans | null {
 
   const loans = mockLoans.filter((l) => l.poolId === poolId);
   return { ...pool, loans };
+}
+
+// Extended pool data with new fields
+export const mockPoolsExtended: Record<string, Partial<PoolExtended>> = {
+  "maple-usdc-01": {
+    address: "0x123456789abcdef",
+    asset: { address: "0xa0b8...usdc", symbol: "USDC", decimals: 6 },
+    managers: {
+      pool_manager: "0xabc...pm1",
+      loan_manager: "0xdef...lm1",
+      withdrawal_manager: "0x789...wm1",
+    },
+    loan_summary: { total: 12, active: 8, repaid: 3, defaulted: 1 },
+    nav: 84500000,
+  },
+  "maple-weth-01": {
+    address: "0x223456789abcdef",
+    asset: { address: "0xa0b8...weth", symbol: "WETH", decimals: 18 },
+    managers: {
+      pool_manager: "0xabc...pm2",
+      loan_manager: "0xdef...lm2",
+      withdrawal_manager: "0x789...wm2",
+    },
+    loan_summary: { total: 8, active: 6, repaid: 2, defaulted: 0 },
+    nav: 71800000,
+  },
+  "maple-usdc-02": {
+    address: "0x323456789abcdef",
+    asset: { address: "0xa0b8...usdc", symbol: "USDC", decimals: 6 },
+    managers: {
+      pool_manager: "0xabc...pm3",
+      loan_manager: "0xdef...lm3",
+      withdrawal_manager: "0x789...wm3",
+    },
+    loan_summary: { total: 7, active: 5, repaid: 2, defaulted: 0 },
+    nav: 57200000,
+  },
+  "maple-usdc-03": {
+    address: "0x423456789abcdef",
+    asset: { address: "0xa0b8...usdc", symbol: "USDC", decimals: 6 },
+    managers: {
+      pool_manager: "0xabc...pm4",
+      loan_manager: "0xdef...lm4",
+      withdrawal_manager: "0x789...wm4",
+    },
+    loan_summary: { total: 6, active: 4, repaid: 0, defaulted: 2 },
+    nav: 28500000,
+  },
+  "cfg-real-estate-01": {
+    address: "0x523456789abcdef",
+    asset: { address: "0xa0b8...usdc", symbol: "USDC", decimals: 6 },
+    managers: {
+      pool_manager: "0xabc...pm5",
+      loan_manager: "0xdef...lm5",
+      withdrawal_manager: "0x789...wm5",
+    },
+    loan_summary: { total: 15, active: 12, repaid: 3, defaulted: 0 },
+    nav: 44800000,
+  },
+  "cfg-trade-finance-01": {
+    address: "0x623456789abcdef",
+    asset: { address: "0xa0b8...usdc", symbol: "USDC", decimals: 6 },
+    managers: {
+      pool_manager: "0xabc...pm6",
+      loan_manager: "0xdef...lm6",
+      withdrawal_manager: "0x789...wm6",
+    },
+    loan_summary: { total: 20, active: 18, repaid: 2, defaulted: 0 },
+    nav: 51500000,
+  },
+};
+
+// Generate capital flow mock data
+export function generateCapitalFlowData(
+  poolId: string,
+  filters?: CapitalFlowFilters
+): CapitalFlowResponse {
+  const granularity: CapitalFlowGranularity = filters?.granularity || "daily";
+  const limit = filters?.limit || 100;
+  
+  // Get pool base TVL for realistic numbers
+  const pool = mockPools.find((p) => p.id === poolId);
+  const baseTvl = pool?.tvl || 50000000;
+  
+  // Generate data points based on granularity
+  const data = [];
+  const today = new Date();
+  let cumulativePosition = baseTvl;
+  
+  // Determine number of days based on filters or default
+  let endDate = filters?.end_date ? new Date(filters.end_date) : today;
+  let startDate: Date;
+  
+  if (filters?.start_date) {
+    startDate = new Date(filters.start_date);
+  } else {
+    // Default to 90 days
+    startDate = new Date(endDate);
+    startDate.setDate(startDate.getDate() - 90);
+  }
+  
+  const daysDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+  
+  let stepDays = 1;
+  if (granularity === "weekly") stepDays = 7;
+  if (granularity === "monthly") stepDays = 30;
+  
+  const numPoints = Math.min(Math.ceil(daysDiff / stepDays), limit);
+  
+  // Generate from oldest to newest
+  for (let i = numPoints - 1; i >= 0; i--) {
+    const date = new Date(endDate);
+    date.setDate(date.getDate() - i * stepDays);
+    
+    // Generate realistic flow amounts (0.5% - 3% of TVL per period)
+    const depositBase = baseTvl * (0.005 + Math.random() * 0.025);
+    const withdrawalBase = baseTvl * (0.003 + Math.random() * 0.02);
+    const loanRepaymentBase = baseTvl * (0.002 + Math.random() * 0.015);
+    const loanDrawdownBase = baseTvl * (0.004 + Math.random() * 0.02);
+    
+    const deposits = Math.round(depositBase);
+    const loanRepayments = Math.round(loanRepaymentBase);
+    const withdrawals = Math.round(withdrawalBase);
+    const loanDrawdowns = Math.round(loanDrawdownBase);
+    const defaults = Math.random() > 0.95 ? Math.round(baseTvl * 0.005) : 0;
+    
+    const totalInflows = deposits + loanRepayments;
+    const totalOutflows = withdrawals + loanDrawdowns + defaults;
+    const netFlow = totalInflows - totalOutflows;
+    
+    cumulativePosition += netFlow;
+    
+    data.push({
+      date: date.toISOString().split("T")[0],
+      inflows: {
+        deposits: deposits.toFixed(2),
+        loan_repayments: loanRepayments.toFixed(2),
+        total: totalInflows.toFixed(2),
+      },
+      outflows: {
+        withdrawals: withdrawals.toFixed(2),
+        loan_drawdowns: loanDrawdowns.toFixed(2),
+        defaults: defaults.toFixed(2),
+        total: totalOutflows.toFixed(2),
+      },
+      net_flow: netFlow.toFixed(2),
+      cumulative_position: cumulativePosition.toFixed(2),
+    });
+  }
+  
+  // Calculate summary
+  const totalInflows = data.reduce(
+    (sum, d) => sum + parseFloat(d.inflows.total),
+    0
+  );
+  const totalOutflows = data.reduce(
+    (sum, d) => sum + parseFloat(d.outflows.total),
+    0
+  );
+  
+  return {
+    pool_id: poolId,
+    granularity,
+    data,
+    summary: {
+      period_start: startDate.toISOString().split("T")[0],
+      period_end: endDate.toISOString().split("T")[0],
+      total_inflows: totalInflows.toFixed(2),
+      total_outflows: totalOutflows.toFixed(2),
+      net_change: (totalInflows - totalOutflows).toFixed(2),
+      current_position: cumulativePosition.toFixed(2),
+    },
+    pagination: {
+      total: data.length,
+      limit,
+      offset: filters?.offset || 0,
+    },
+  };
+}
+
+// Helper to get extended pool data
+export function getPoolExtended(poolId: string): PoolExtended | null {
+  const pool = mockPools.find((p) => p.id === poolId);
+  if (!pool) return null;
+
+  const extended = mockPoolsExtended[poolId] || {};
+  return { ...pool, ...extended };
 }
