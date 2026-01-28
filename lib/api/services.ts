@@ -16,6 +16,8 @@ import type {
   PoolExtended,
   PoolCapacityResponse,
   PoolCapacityFilters,
+  PoolVelocityResponse,
+  PoolVelocityFilters,
 } from "./types";
 import {
   mockSummary,
@@ -29,6 +31,7 @@ import {
   generateCapitalFlowData,
   getPoolExtended,
   generatePoolCapacityData,
+  generatePoolVelocityData,
 } from "./mocks";
 
 // Simulate network delay
@@ -230,4 +233,13 @@ export async function getPoolCapacity(
 ): Promise<PoolCapacityResponse> {
   await delay(100);
   return generatePoolCapacityData(poolId, filters);
+}
+
+// Pool Velocity
+export async function getPoolVelocity(
+  poolId: string,
+  filters?: PoolVelocityFilters
+): Promise<PoolVelocityResponse> {
+  await delay(100);
+  return generatePoolVelocityData(poolId, filters);
 }

@@ -257,3 +257,63 @@ export interface PoolCapacityResponse {
     offset: number;
   };
 }
+
+// Pool Velocity Types
+export interface LoanVelocityData {
+  avg_days_to_fund: number;
+  median_days_to_fund: number;
+  p90_days_to_fund: number;
+  loans_funded: number;
+  total_principal_funded: string;
+}
+
+export interface RedemptionVelocityData {
+  avg_days_to_process: number;
+  median_days_to_process: number;
+  p90_days_to_process: number;
+  redemptions_processed: number;
+  total_assets_redeemed: string;
+}
+
+export interface PoolVelocityData {
+  period_start: string;
+  period_end: string;
+  loan_velocity: LoanVelocityData;
+  redemption_velocity: RedemptionVelocityData;
+}
+
+export interface PoolVelocitySummary {
+  period_start: string;
+  period_end: string;
+  loan_velocity: {
+    avg_days_to_fund: number;
+    median_days_to_fund: number;
+    total_loans_funded: number;
+  };
+  redemption_velocity: {
+    avg_days_to_process: number;
+    median_days_to_process: number;
+    total_redemptions_processed: number;
+  };
+}
+
+export interface PoolVelocityFilters {
+  granularity?: CapitalFlowGranularity;
+  start_date?: string;
+  end_date?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface PoolVelocityResponse {
+  pool_id: string;
+  pool_name: string;
+  granularity: CapitalFlowGranularity;
+  data: PoolVelocityData[];
+  summary: PoolVelocitySummary;
+  pagination: {
+    total: number;
+    limit: number;
+    offset: number;
+  };
+}

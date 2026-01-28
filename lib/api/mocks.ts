@@ -13,6 +13,8 @@ import type {
   PoolExtended,
   PoolCapacityResponse,
   PoolCapacityFilters,
+  PoolVelocityResponse,
+  PoolVelocityFilters,
 } from "./types";
 
 // Mock Protocols
@@ -808,6 +810,125 @@ export function generatePoolCapacityData(
       idle_cash: latest.idle_cash,
       available_capacity: latest.available_capacity,
       utilization_rate: latest.utilization_rate,
+    },
+    pagination: {
+      total: data.length,
+      limit,
+      offset: filters?.offset || 0,
+    },
+  };
+}
+
+// Generate pool velocity mock data
+export function generatePoolVelocityData(
+  poolId: string,
+  filters?: PoolVelocityFilters
+): PoolVelocityResponse {
+  const granularity: CapitalFlowGranularity = filters?.granularity || "weekly";
+  const limit = filters?.limit || 52;
+
+  // Get pool base data
+  const pool = mockPools.find((p) => p.id === poolId);
+
+  // Determine date range
+  const today = new Date();
+  const endDate = filters?.end_date ? new Date(filters.end_date) : today;
+  let startDate: Date;
+
+  if (filters?.start_date) {
+    startDate = new Date(filters.start_date);
+  } else {
+    startDate = new Date(endDate);
+    startDate.setDate(startDate.getDate() - 90);
+  }
+
+  const daysDiff = Math.ceil(
+    (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  let stepDays = 7; // Default to weekly
+  if (granularity === "daily") stepDays = 1;
+  if (granularity === "monthly") stepDays = 30;
+
+  const numPoints = Math.min(Math.ceil(daysDiff / stepDays), limit);
+
+  const data = [];
+
+  // Summary accumulators
+  let totalLoansFunded = 0;
+  let totalRedemptionsProcessed = 0;
+  let sumDaysToFund = 0;
+  let sumDaysToProcess = 0;
+
+  for (let i = numPoints - 1; i >= 0; i--) {
+    const periodEnd = new Date(endDate);
+    periodEnd.setDate(periodEnd.getDate() - i * stepDays);
+    const periodStart = new Date(periodEnd);
+    periodStart.setDate(periodStart.getDate() - stepDays);
+
+    // Generate realistic velocity metrics
+    // Loan funding typically takes 1-5 days
+    const avgDaysToFund = 1 + Math.random() * 4;
+    const medianDaysToFund = avgDaysToFund * (0.8 + Math.random() * 0.3);
+    const p90DaysToFund = avgDaysToFund * (1.5 + Math.random() * 0.5);
+    const loansFunded = Math.floor(Math.random() * 4); // 0-3 loans per period
+    const totalPrincipalFunded = loansFunded * (500000 + Math.random() * 2000000);
+
+    // Redemption processing typically takes 7-21 days
+    const avgDaysToProcess = 7 + Math.random() * 14;
+    const medianDaysToProcess = avgDaysToProcess * (0.9 + Math.random() * 0.2);
+    const p90DaysToProcess = avgDaysToProcess * (1.3 + Math.random() * 0.4);
+    const redemptionsProcessed = Math.floor(Math.random() * 8); // 0-7 redemptions per period
+    const totalAssetsRedeemed = redemptionsProcessed * (50000 + Math.random() * 500000);
+
+    // Accumulate for summary
+    totalLoansFunded += loansFunded;
+    totalRedemptionsProcessed += redemptionsProcessed;
+    if (loansFunded > 0) sumDaysToFund += avgDaysToFund * loansFunded;
+    if (redemptionsProcessed > 0) sumDaysToProcess += avgDaysToProcess * redemptionsProcessed;
+
+    data.push({
+      period_start: periodStart.toISOString().split("T")[0],
+      period_end: periodEnd.toISOString().split("T")[0],
+      loan_velocity: {
+        avg_days_to_fund: parseFloat(avgDaysToFund.toFixed(1)),
+        median_days_to_fund: parseFloat(medianDaysToFund.toFixed(1)),
+        p90_days_to_fund: parseFloat(p90DaysToFund.toFixed(1)),
+        loans_funded: loansFunded,
+        total_principal_funded: totalPrincipalFunded.toFixed(2),
+      },
+      redemption_velocity: {
+        avg_days_to_process: parseFloat(avgDaysToProcess.toFixed(1)),
+        median_days_to_process: parseFloat(medianDaysToProcess.toFixed(1)),
+        p90_days_to_process: parseFloat(p90DaysToProcess.toFixed(1)),
+        redemptions_processed: redemptionsProcessed,
+        total_assets_redeemed: totalAssetsRedeemed.toFixed(2),
+      },
+    });
+  }
+
+  // Calculate summary averages
+  const avgLoanDays = totalLoansFunded > 0 ? sumDaysToFund / totalLoansFunded : 0;
+  const avgRedemptionDays = totalRedemptionsProcessed > 0 ? sumDaysToProcess / totalRedemptionsProcessed : 0;
+
+  return {
+    pool_id: poolId,
+    pool_name: pool?.name || "Unknown Pool",
+    granularity,
+    data,
+    summary: {
+      period_start: startDate.toISOString().split("T")[0],
+      period_end: endDate.toISOString().split("T")[0],
+      loan_velocity: {
+        avg_days_to_fund: parseFloat(avgLoanDays.toFixed(1)),
+        median_days_to_fund: parseFloat((avgLoanDays * 0.9).toFixed(1)),
+        total_loans_funded: totalLoansFunded,
+      },
+      redemption_velocity: {
+        avg_days_to_process: parseFloat(avgRedemptionDays.toFixed(1)),
+        median_days_to_process: parseFloat((avgRedemptionDays * 0.95).toFixed(1)),
+        total_redemptions_processed: totalRedemptionsProcessed,
+      },
     },
     pagination: {
       total: data.length,

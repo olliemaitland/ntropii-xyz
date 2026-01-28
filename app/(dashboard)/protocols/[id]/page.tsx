@@ -12,10 +12,11 @@ import { LoansTable } from "@/components/protocol/loans-table";
 import { PoolDetailsCard } from "@/components/protocol/pool-details-card";
 import { CapitalFlowChart } from "@/components/protocol/capital-flow-chart";
 import { PoolCapacityChart } from "@/components/protocol/pool-capacity-chart";
+import { PoolVelocityChart } from "@/components/protocol/pool-velocity-chart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getProtocol, getPoolEvents, getLoans, getPoolCapitalFlows, getPoolExtendedData, getPoolCapacity } from "@/lib/api/services";
+import { getProtocol, getPoolEvents, getLoans, getPoolCapitalFlows, getPoolExtendedData, getPoolCapacity, getPoolVelocity } from "@/lib/api/services";
 import type { BreadcrumbItem } from "@/components/layout/breadcrumb";
-import type { CapitalFlowFilters, PoolCapacityFilters } from "@/lib/api/types";
+import type { CapitalFlowFilters, PoolCapacityFilters, PoolVelocityFilters } from "@/lib/api/types";
 
 export default function ProtocolPage() {
   const params = useParams();
@@ -86,6 +87,24 @@ export default function ProtocolPage() {
     () => getPoolCapacity(selectedPoolId!, capacityFilters)
   );
 
+  const [velocityPeriod, setVelocityPeriod] = useState(90);
+
+  const velocityFilters: PoolVelocityFilters = useMemo(() => {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - velocityPeriod);
+    return {
+      granularity: velocityPeriod <= 30 ? "daily" : "weekly",
+      start_date: startDate.toISOString().split("T")[0],
+      end_date: endDate.toISOString().split("T")[0],
+    };
+  }, [velocityPeriod]);
+
+  const { data: velocityResponse, isLoading: velocityLoading } = useSWR(
+    selectedPoolId ? `pool-velocity-${selectedPoolId}-${velocityPeriod}` : null,
+    () => getPoolVelocity(selectedPoolId!, velocityFilters)
+  );
+
   if (protocolLoading) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -147,6 +166,12 @@ export default function ProtocolPage() {
                 data={capacityResponse?.data || []}
                 isLoading={capacityLoading}
                 onPeriodChange={setCapacityPeriod}
+              />
+
+              <PoolVelocityChart
+                data={velocityResponse?.data || []}
+                isLoading={velocityLoading}
+                onPeriodChange={setVelocityPeriod}
               />
 
               <Card>
