@@ -27,58 +27,93 @@ function formatCurrency(value: number): string {
 function MicroChart({ data }: { data: CapitalFlowData[] }) {
   if (!data || data.length === 0) {
     return (
-      <div className="flex h-10 items-center gap-0.5">
-        {[...Array(6)].map((_, i) => (
-          <div
-            key={i}
-            className="h-6 w-4 rounded-sm bg-muted"
-          />
-        ))}
-      </div>
+      <svg width="80" height="32" className="text-muted">
+        <line x1="0" y1="16" x2="80" y2="16" stroke="currentColor" strokeWidth="2" strokeDasharray="4 2" />
+      </svg>
     );
   }
 
-  // Get last 6 months of data (aggregate by month if daily)
-  const monthlyData: { netFlow: number; month: string }[] = [];
+  // Get last 6 months of cumulative position data
+  const monthlyData: { cumulativePosition: number; month: string }[] = [];
   const monthMap = new Map<string, number>();
 
   data.forEach((d) => {
     const month = d.date.substring(0, 7); // YYYY-MM
-    const current = monthMap.get(month) || 0;
-    monthMap.set(month, current + parseFloat(d.net_flow));
+    // Use the latest cumulative position for each month
+    monthMap.set(month, parseFloat(d.cumulative_position));
   });
 
   Array.from(monthMap.entries())
     .slice(-6)
-    .forEach(([month, netFlow]) => {
-      monthlyData.push({ month, netFlow });
+    .forEach(([month, cumulativePosition]) => {
+      monthlyData.push({ month, cumulativePosition });
     });
 
-  // Calculate max absolute value for scaling
-  const maxAbsValue = Math.max(
-    ...monthlyData.map((d) => Math.abs(d.netFlow)),
-    1
-  );
+  if (monthlyData.length < 2) {
+    return (
+      <svg width="80" height="32" className="text-muted">
+        <line x1="0" y1="16" x2="80" y2="16" stroke="currentColor" strokeWidth="2" strokeDasharray="4 2" />
+      </svg>
+    );
+  }
+
+  // Calculate min/max for Y scaling
+  const values = monthlyData.map((d) => d.cumulativePosition);
+  const minVal = Math.min(...values);
+  const maxVal = Math.max(...values);
+  const range = maxVal - minVal || 1;
+
+  const width = 80;
+  const height = 32;
+  const padding = 2;
+
+  // Generate points
+  const points = monthlyData.map((d, i) => {
+    const x = padding + (i / (monthlyData.length - 1)) * (width - padding * 2);
+    const y = height - padding - ((d.cumulativePosition - minVal) / range) * (height - padding * 2);
+    return { x, y, value: d.cumulativePosition, month: d.month };
+  });
+
+  // Generate line segments with colors based on direction
+  const segments: { x1: number; y1: number; x2: number; y2: number; increasing: boolean }[] = [];
+  for (let i = 0; i < points.length - 1; i++) {
+    segments.push({
+      x1: points[i].x,
+      y1: points[i].y,
+      x2: points[i + 1].x,
+      y2: points[i + 1].y,
+      increasing: points[i + 1].value >= points[i].value,
+    });
+  }
 
   return (
-    <div className="flex h-10 items-end gap-0.5">
-      {monthlyData.map((d, i) => {
-        const heightPercent = Math.abs(d.netFlow) / maxAbsValue;
-        const height = Math.max(heightPercent * 32, 4); // 32px max, 4px min
-        const isPositive = d.netFlow >= 0;
-
-        return (
-          <div
-            key={i}
-            className={`w-4 rounded-sm transition-all ${
-              isPositive ? "bg-emerald-500" : "bg-red-500"
-            }`}
-            style={{ height: `${height}px` }}
-            title={`${d.month}: ${isPositive ? "+" : ""}${formatCurrency(d.netFlow)}`}
-          />
-        );
-      })}
-    </div>
+    <svg width={width} height={height} className="overflow-visible">
+      {/* Line segments */}
+      {segments.map((seg, i) => (
+        <line
+          key={i}
+          x1={seg.x1}
+          y1={seg.y1}
+          x2={seg.x2}
+          y2={seg.y2}
+          stroke={seg.increasing ? "#10b981" : "#ef4444"}
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+      ))}
+      {/* Data points */}
+      {points.map((p, i) => (
+        <circle
+          key={i}
+          cx={p.x}
+          cy={p.y}
+          r="2"
+          fill={i === 0 || points[i].value >= points[i - 1].value ? "#10b981" : "#ef4444"}
+        >
+          <title>{`${p.month}: ${formatCurrency(p.value)}`}</title>
+        </circle>
+      ))}
+    </svg>
   );
 }
 
