@@ -14,6 +14,7 @@ import { CapitalFlowChart } from "@/components/protocol/capital-flow-chart";
 import { PoolCapacityChart } from "@/components/protocol/pool-capacity-chart";
 import { PoolVelocityChart } from "@/components/protocol/pool-velocity-chart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getProtocol, getPoolEvents, getLoans, getPoolCapitalFlows, getPoolExtendedData, getPoolCapacity, getPoolVelocity } from "@/lib/api/services";
 import type { BreadcrumbItem } from "@/components/layout/breadcrumb";
 import type { CapitalFlowFilters, PoolCapacityFilters, PoolVelocityFilters } from "@/lib/api/types";
@@ -156,53 +157,68 @@ export default function ProtocolPage() {
                 capitalFlowData={capitalFlowsResponse?.data}
               />
 
-              <CapitalFlowChart
-                data={capitalFlowsResponse?.data || []}
-                isLoading={capitalFlowsLoading}
-                onPeriodChange={setCapitalFlowPeriod}
-              />
+              <Tabs defaultValue="performance" className="w-full">
+                <TabsList className="h-12 w-full max-w-md">
+                  <TabsTrigger value="performance" className="h-10 flex-1 text-base font-semibold">
+                    Performance
+                  </TabsTrigger>
+                  <TabsTrigger value="loans" className="h-10 flex-1 text-base font-semibold">
+                    Loans
+                  </TabsTrigger>
+                </TabsList>
 
-              <PoolCapacityChart
-                data={capacityResponse?.data || []}
-                isLoading={capacityLoading}
-                onPeriodChange={setCapacityPeriod}
-              />
-
-              <PoolVelocityChart
-                data={velocityResponse?.data || []}
-                isLoading={velocityLoading}
-                onPeriodChange={setVelocityPeriod}
-              />
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Events</CardTitle>
-                  <CardDescription>
-                    Deposits, withdrawals, and other activity for this pool
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <PoolEventsTable
-                    events={eventsResponse?.data || []}
-                    isLoading={eventsLoading}
+                <TabsContent value="performance" className="mt-6 space-y-6">
+                  <CapitalFlowChart
+                    data={capitalFlowsResponse?.data || []}
+                    isLoading={capitalFlowsLoading}
+                    onPeriodChange={setCapitalFlowPeriod}
                   />
-                </CardContent>
-              </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Active Loans ({loansResponse?.data.length || 0})</CardTitle>
-                  <CardDescription>
-                    Current and historical loans for this pool
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <LoansTable
-                    loans={loansResponse?.data || []}
-                    isLoading={loansLoading}
+                  <PoolCapacityChart
+                    data={capacityResponse?.data || []}
+                    isLoading={capacityLoading}
+                    onPeriodChange={setCapacityPeriod}
                   />
-                </CardContent>
-              </Card>
+
+                  <PoolVelocityChart
+                    data={velocityResponse?.data || []}
+                    isLoading={velocityLoading}
+                    onPeriodChange={setVelocityPeriod}
+                  />
+                </TabsContent>
+
+                <TabsContent value="loans" className="mt-6 space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Active Loans ({loansResponse?.data.length || 0})</CardTitle>
+                      <CardDescription>
+                        Current and historical loans for this pool
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <LoansTable
+                        loans={loansResponse?.data || []}
+                        isLoading={loansLoading}
+                      />
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Recent Events</CardTitle>
+                      <CardDescription>
+                        Deposits, withdrawals, and other activity for this pool
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <PoolEventsTable
+                        events={eventsResponse?.data || []}
+                        isLoading={eventsLoading}
+                      />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
             </div>
           ) : (
             <div className="flex h-full items-center justify-center text-muted-foreground">
