@@ -11,6 +11,8 @@ import type {
   CapitalFlowGranularity,
   CapitalFlowFilters,
   PoolExtended,
+  PoolCapacityResponse,
+  PoolCapacityFilters,
 } from "./types";
 
 // Mock Protocols
@@ -720,4 +722,97 @@ export function getPoolExtended(poolId: string): PoolExtended | null {
 
   const extended = mockPoolsExtended[poolId] || {};
   return { ...pool, ...extended };
+}
+
+// Generate pool capacity mock data
+export function generatePoolCapacityData(
+  poolId: string,
+  filters?: PoolCapacityFilters
+): PoolCapacityResponse {
+  const granularity: CapitalFlowGranularity = filters?.granularity || "daily";
+  const limit = filters?.limit || 100;
+
+  // Get pool base data for realistic numbers
+  const pool = mockPools.find((p) => p.id === poolId);
+  const baseTvl = pool?.tvl || 50000000;
+  const utilizationRate = pool?.utilizationRate || 70;
+
+  // Set liquidity cap at ~120-150% of TVL
+  const liquidityCap = Math.round(baseTvl * (1.2 + Math.random() * 0.3));
+
+  // Determine date range
+  const today = new Date();
+  let endDate = filters?.end_date ? new Date(filters.end_date) : today;
+  let startDate: Date;
+
+  if (filters?.start_date) {
+    startDate = new Date(filters.start_date);
+  } else {
+    startDate = new Date(endDate);
+    startDate.setDate(startDate.getDate() - 90);
+  }
+
+  const daysDiff = Math.ceil(
+    (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  let stepDays = 1;
+  if (granularity === "weekly") stepDays = 7;
+  if (granularity === "monthly") stepDays = 30;
+
+  const numPoints = Math.min(Math.ceil(daysDiff / stepDays), limit);
+
+  const data = [];
+
+  // Start with some base values and evolve them
+  let currentOutstanding = baseTvl * (utilizationRate / 100);
+  let currentIdleCash = baseTvl - currentOutstanding;
+
+  for (let i = numPoints - 1; i >= 0; i--) {
+    const date = new Date(endDate);
+    date.setDate(date.getDate() - i * stepDays);
+
+    // Add some random variation (±3% per period)
+    const outstandingChange = currentOutstanding * (Math.random() * 0.06 - 0.03);
+    const idleChange = currentIdleCash * (Math.random() * 0.08 - 0.04);
+
+    currentOutstanding = Math.max(0, currentOutstanding + outstandingChange);
+    currentIdleCash = Math.max(0, currentIdleCash + idleChange);
+
+    const tvl = currentOutstanding + currentIdleCash;
+    const availableCapacity = liquidityCap - tvl;
+    const utilization = currentOutstanding / liquidityCap;
+
+    data.push({
+      date: date.toISOString().split("T")[0],
+      liquidity_cap: liquidityCap.toFixed(2),
+      outstanding_balance: currentOutstanding.toFixed(2),
+      idle_cash: currentIdleCash.toFixed(2),
+      tvl: tvl.toFixed(2),
+      available_capacity: availableCapacity.toFixed(2),
+      utilization_rate: parseFloat(utilization.toFixed(4)),
+    });
+  }
+
+  // Current values from the most recent data point
+  const latest = data[data.length - 1];
+
+  return {
+    pool_id: poolId,
+    pool_name: pool?.name || "Unknown Pool",
+    asset_symbol: mockPoolsExtended[poolId]?.asset?.symbol || "USDC",
+    data,
+    current: {
+      liquidity_cap: latest.liquidity_cap,
+      outstanding_balance: latest.outstanding_balance,
+      idle_cash: latest.idle_cash,
+      available_capacity: latest.available_capacity,
+      utilization_rate: latest.utilization_rate,
+    },
+    pagination: {
+      total: data.length,
+      limit,
+      offset: filters?.offset || 0,
+    },
+  };
 }

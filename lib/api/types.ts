@@ -217,3 +217,43 @@ export interface PoolExtended extends Pool {
   loan_summary?: LoanSummary;
   nav?: number;
 }
+
+// Pool Capacity Types
+export interface PoolCapacityData {
+  date: string;
+  liquidity_cap: string;
+  outstanding_balance: string;
+  idle_cash: string;
+  tvl: string;
+  available_capacity: string;
+  utilization_rate: number;
+}
+
+export interface PoolCapacityCurrent {
+  liquidity_cap: string;
+  outstanding_balance: string;
+  idle_cash: string;
+  available_capacity: string;
+  utilization_rate: number;
+}
+
+export interface PoolCapacityFilters {
+  granularity?: CapitalFlowGranularity;
+  start_date?: string;
+  end_date?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface PoolCapacityResponse {
+  pool_id: string;
+  pool_name: string;
+  asset_symbol: string;
+  data: PoolCapacityData[];
+  current: PoolCapacityCurrent;
+  pagination: {
+    total: number;
+    limit: number;
+    offset: number;
+  };
+}

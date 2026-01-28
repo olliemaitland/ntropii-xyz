@@ -11,10 +11,11 @@ import { PoolEventsTable } from "@/components/protocol/pool-events-table";
 import { LoansTable } from "@/components/protocol/loans-table";
 import { PoolDetailsCard } from "@/components/protocol/pool-details-card";
 import { CapitalFlowChart } from "@/components/protocol/capital-flow-chart";
+import { PoolCapacityChart } from "@/components/protocol/pool-capacity-chart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getProtocol, getPoolEvents, getLoans, getPoolCapitalFlows, getPoolExtendedData } from "@/lib/api/services";
+import { getProtocol, getPoolEvents, getLoans, getPoolCapitalFlows, getPoolExtendedData, getPoolCapacity } from "@/lib/api/services";
 import type { BreadcrumbItem } from "@/components/layout/breadcrumb";
-import type { CapitalFlowFilters } from "@/lib/api/types";
+import type { CapitalFlowFilters, PoolCapacityFilters } from "@/lib/api/types";
 
 export default function ProtocolPage() {
   const params = useParams();
@@ -65,6 +66,24 @@ export default function ProtocolPage() {
   const { data: extendedPool } = useSWR(
     selectedPoolId ? `pool-extended-${selectedPoolId}` : null,
     () => getPoolExtendedData(selectedPoolId!)
+  );
+
+  const [capacityPeriod, setCapacityPeriod] = useState(90);
+
+  const capacityFilters: PoolCapacityFilters = useMemo(() => {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - capacityPeriod);
+    return {
+      granularity: capacityPeriod <= 30 ? "daily" : capacityPeriod <= 90 ? "daily" : "weekly",
+      start_date: startDate.toISOString().split("T")[0],
+      end_date: endDate.toISOString().split("T")[0],
+    };
+  }, [capacityPeriod]);
+
+  const { data: capacityResponse, isLoading: capacityLoading } = useSWR(
+    selectedPoolId ? `pool-capacity-${selectedPoolId}-${capacityPeriod}` : null,
+    () => getPoolCapacity(selectedPoolId!, capacityFilters)
   );
 
   if (protocolLoading) {
@@ -122,6 +141,12 @@ export default function ProtocolPage() {
                 data={capitalFlowsResponse?.data || []}
                 isLoading={capitalFlowsLoading}
                 onPeriodChange={setCapitalFlowPeriod}
+              />
+
+              <PoolCapacityChart
+                data={capacityResponse?.data || []}
+                isLoading={capacityLoading}
+                onPeriodChange={setCapacityPeriod}
               />
 
               <Card>
