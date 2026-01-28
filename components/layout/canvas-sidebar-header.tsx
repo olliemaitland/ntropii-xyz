@@ -8,7 +8,6 @@ interface CanvasSidebarHeaderProps {
   name: string;
   status: ProtocolStatus;
   tvl: number;
-  apy: number;
   activePoolsCount: number;
   className?: string;
 }
@@ -43,7 +42,6 @@ export function CanvasSidebarHeader({
   name,
   status,
   tvl,
-  apy,
   activePoolsCount,
   className,
 }: CanvasSidebarHeaderProps) {
@@ -56,14 +54,10 @@ export function CanvasSidebarHeader({
         </Badge>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         <div>
           <p className="text-xs text-muted-foreground">TVL</p>
           <p className="text-sm font-medium font-mono">{formatCurrency(tvl)}</p>
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground">APY</p>
-          <p className="text-sm font-medium font-mono">{apy.toFixed(1)}%</p>
         </div>
         <div>
           <p className="text-xs text-muted-foreground">Pools</p>

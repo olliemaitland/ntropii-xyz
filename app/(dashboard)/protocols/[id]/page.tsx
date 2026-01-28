@@ -136,7 +136,6 @@ export default function ProtocolPage() {
             name={protocol.name}
             status={protocol.status}
             tvl={protocol.tvl}
-            apy={protocol.apy}
             activePoolsCount={protocol.activePoolsCount}
           />
           <CanvasSidebar
