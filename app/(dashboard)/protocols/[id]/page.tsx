@@ -134,7 +134,6 @@ export default function ProtocolPage() {
         <aside className="flex w-72 shrink-0 flex-col border-r bg-background">
           <CanvasSidebarHeader
             name={protocol.name}
-            status={protocol.status}
             tvl={protocol.tvl}
             activePoolsCount={protocol.activePoolsCount}
           />

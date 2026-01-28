@@ -1,12 +1,9 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
-import type { ProtocolStatus } from "@/lib/api/types";
 
 interface CanvasSidebarHeaderProps {
   name: string;
-  status: ProtocolStatus;
   tvl: number;
   activePoolsCount: number;
   className?: string;
@@ -25,34 +22,15 @@ function formatCurrency(value: number): string {
   return `$${value.toFixed(0)}`;
 }
 
-function getStatusVariant(status: ProtocolStatus): "default" | "secondary" | "destructive" | "outline" {
-  switch (status) {
-    case "active":
-      return "default";
-    case "paused":
-      return "secondary";
-    case "deprecated":
-      return "destructive";
-    default:
-      return "outline";
-  }
-}
-
 export function CanvasSidebarHeader({
   name,
-  status,
   tvl,
   activePoolsCount,
   className,
 }: CanvasSidebarHeaderProps) {
   return (
     <div className={cn("space-y-4 border-b p-4", className)}>
-      <div className="flex items-start justify-between gap-2">
-        <h2 className="text-lg font-semibold text-foreground">{name}</h2>
-        <Badge variant={getStatusVariant(status)} className="capitalize">
-          {status}
-        </Badge>
-      </div>
+      <h2 className="text-lg font-semibold text-foreground">{name}</h2>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
