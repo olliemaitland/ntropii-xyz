@@ -262,22 +262,19 @@ export function CanvasContentBanner({
         </div>
 
         {/* Tabs row - underline style at bottom edge of banner */}
-        <div className={cn(
-          "px-6 transition-all duration-200",
-          isMinimized ? "pt-1" : "pt-0"
-        )}>
+        <div className="px-6">
           <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-            <TabsList className="h-auto w-full max-w-xs bg-transparent p-0 gap-6">
+            <TabsList className="h-auto w-full max-w-xs bg-transparent p-0 gap-6 border-none">
               <TabsTrigger 
                 value="performance" 
-                className="h-auto px-0 pb-2 text-xs rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:font-semibold text-muted-foreground data-[state=active]:text-foreground flex items-center gap-1.5 -mb-px"
+                className="h-auto px-0 pb-2 text-xs rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:font-semibold text-muted-foreground data-[state=active]:text-foreground flex items-center gap-1.5 -mb-px outline-none focus:outline-none focus-visible:outline-none ring-0 focus:ring-0 focus-visible:ring-0"
               >
                 <BarChart3 className="h-3.5 w-3.5" />
                 Performance
               </TabsTrigger>
               <TabsTrigger 
                 value="loans" 
-                className="h-auto px-0 pb-2 text-xs rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:font-semibold text-muted-foreground data-[state=active]:text-foreground flex items-center gap-1.5 -mb-px"
+                className="h-auto px-0 pb-2 text-xs rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:font-semibold text-muted-foreground data-[state=active]:text-foreground flex items-center gap-1.5 -mb-px outline-none focus:outline-none focus-visible:outline-none ring-0 focus:ring-0 focus-visible:ring-0"
               >
                 <FileText className="h-3.5 w-3.5" />
                 Loans
