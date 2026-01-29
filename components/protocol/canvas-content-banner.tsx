@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import type { Pool, PoolExtended, CapitalFlowData } from "@/lib/api/types";
-import { TrendingUp, TrendingDown, BarChart3, FileText } from "lucide-react";
+import { TrendingUp, TrendingDown, BarChart3, FileText, AlertTriangle } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface CanvasContentBannerProps {
   pool: Pool;
@@ -197,6 +198,18 @@ export function CanvasContentBanner({
 
               {/* Chips row - under the pool name */}
               <div className="flex items-center gap-2 flex-wrap">
+                {/* Manager chip - first */}
+                <Badge variant="outline" className={cn(
+                  "transition-all duration-200",
+                  isMinimized ? "text-xs px-2 py-0.5" : "text-sm px-2.5 py-1"
+                )}>
+                  {pool.protocolId
+                    .split("-")
+                    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+                    .join(" ")}
+                </Badge>
+
+                {/* TVL chip */}
                 <Badge variant="secondary" className={cn(
                   "font-mono transition-all duration-200",
                   isMinimized ? "text-xs px-2 py-0.5" : "text-sm px-2.5 py-1"
@@ -204,46 +217,63 @@ export function CanvasContentBanner({
                   TVL {formatCurrency(pool.tvl)}
                 </Badge>
 
-                <Badge
-                  variant={pool.status === "open" ? "default" : "outline"}
+                {/* Status chip with tooltip showing creation date */}
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Badge
+                        variant={pool.status === "open" ? "default" : "outline"}
+                        className={cn(
+                          "transition-all duration-200 cursor-default",
+                          pool.status === "open"
+                            ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                            : pool.status === "defaulted"
+                              ? "bg-red-500/10 text-red-600 border-red-500/20"
+                              : "",
+                          isMinimized ? "text-xs px-2 py-0.5" : "text-sm px-2.5 py-1"
+                        )}
+                      >
+                        {pool.status.charAt(0).toUpperCase() + pool.status.slice(1)}
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Created {extendedPool?.created_at ? new Date(extendedPool.created_at).toLocaleDateString() : "Unknown"}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+
+                {/* Loans chip - clickable to go to loans tab */}
+                <Badge 
+                  variant="secondary" 
                   className={cn(
-                    "transition-all duration-200",
-                    pool.status === "open"
-                      ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
-                      : pool.status === "defaulted"
-                        ? "bg-red-500/10 text-red-600 border-red-500/20"
-                        : "",
+                    "transition-all duration-200 cursor-pointer hover:bg-secondary/80",
                     isMinimized ? "text-xs px-2 py-0.5" : "text-sm px-2.5 py-1"
                   )}
+                  onClick={() => onTabChange("loans")}
                 >
-                  {pool.status.charAt(0).toUpperCase() + pool.status.slice(1)}
-                </Badge>
-
-                <Badge variant="secondary" className={cn(
-                  "transition-all duration-200",
-                  isMinimized ? "text-xs px-2 py-0.5" : "text-sm px-2.5 py-1"
-                )}>
                   {loanSummary?.active || pool.activeLoansCount} Loans
                 </Badge>
 
-                {!isMinimized && (
-                  <Badge variant="outline" className="text-sm px-2.5 py-1">
-                    {pool.protocolId
-                      .split("-")
-                      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-                      .join(" ")}
-                  </Badge>
-                )}
-
+                {/* Asset symbol chip */}
                 {!isMinimized && extendedPool?.asset && (
                   <Badge variant="outline" className="font-mono text-sm px-2.5 py-1">
                     {extendedPool.asset.symbol}
                   </Badge>
                 )}
 
-                {!isMinimized && loanSummary && loanSummary.defaulted > 0 && (
-                  <Badge variant="destructive" className="text-sm px-2.5 py-1">
-                    {loanSummary.defaulted} Defaulted
+                {/* Defaulted chip with warning icon */}
+                {loanSummary && loanSummary.defaulted > 0 && (
+                  <Badge 
+                    variant="destructive" 
+                    className={cn(
+                      "flex items-center gap-1 bg-red-500/10 text-red-600 border-red-500/20 hover:bg-red-500/20",
+                      isMinimized ? "text-xs px-2 py-0.5" : "text-sm px-2.5 py-1"
+                    )}
+                  >
+                    <AlertTriangle className={cn(
+                      isMinimized ? "h-3 w-3" : "h-3.5 w-3.5"
+                    )} />
+                    {loanSummary.defaulted}
                   </Badge>
                 )}
               </div>
