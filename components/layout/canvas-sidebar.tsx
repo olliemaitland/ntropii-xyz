@@ -102,8 +102,10 @@ export function CanvasSidebar({
               <button
                 onClick={() => onPoolSelect(pool.id)}
                 className={cn(
-                  "w-full px-4 py-3 text-left transition-colors hover:bg-muted/50 relative",
-                  selectedPoolId === pool.id && "bg-emerald-500/10 border-l-2 border-l-emerald-500"
+                  "w-full px-4 py-3 text-left transition-colors relative",
+                  selectedPoolId === pool.id 
+                    ? "bg-emerald-500/10 border-l-2 border-l-emerald-500 hover:bg-emerald-500/10" 
+                    : "hover:bg-muted/50"
                 )}
               >
                 <div className="flex items-start justify-between gap-2 mb-1">
