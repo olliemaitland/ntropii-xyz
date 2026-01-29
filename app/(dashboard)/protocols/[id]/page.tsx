@@ -154,7 +154,7 @@ export default function ProtocolPage() {
                 capitalFlowData={capitalFlowsResponse?.data}
                 activeTab={activeTab}
                 onTabChange={setActiveTab}
-              >
+              />
               {activeTab === "performance" && (
                 <div className="space-y-6">
                   <CapitalFlowChart
