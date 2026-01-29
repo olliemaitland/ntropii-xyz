@@ -165,7 +165,7 @@ export function CanvasContentBanner({
         {/* Banner content */}
         <div className={cn(
           "px-6 transition-all duration-200",
-          isMinimized ? "py-3" : "py-5"
+          isMinimized ? "pt-2 pb-1" : "py-5"
         )}>
           {/* Main banner row */}
           <div className="flex items-start justify-between gap-6">
@@ -262,19 +262,22 @@ export function CanvasContentBanner({
         </div>
 
         {/* Tabs row - underline style at bottom edge of banner */}
-        <div className="px-6">
+        <div className={cn(
+          "px-6 transition-all duration-200",
+          isMinimized ? "pt-1" : "pt-0"
+        )}>
           <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
             <TabsList className="h-auto w-full max-w-xs bg-transparent p-0 gap-6">
               <TabsTrigger 
                 value="performance" 
-                className="h-auto px-0 pb-3 text-xs font-medium rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-foreground text-muted-foreground data-[state=active]:text-foreground flex items-center gap-1.5 -mb-px"
+                className="h-auto px-0 pb-2 text-xs rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:font-semibold text-muted-foreground data-[state=active]:text-foreground flex items-center gap-1.5 -mb-px"
               >
                 <BarChart3 className="h-3.5 w-3.5" />
                 Performance
               </TabsTrigger>
               <TabsTrigger 
                 value="loans" 
-                className="h-auto px-0 pb-3 text-xs font-medium rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-foreground text-muted-foreground data-[state=active]:text-foreground flex items-center gap-1.5 -mb-px"
+                className="h-auto px-0 pb-2 text-xs rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:font-semibold text-muted-foreground data-[state=active]:text-foreground flex items-center gap-1.5 -mb-px"
               >
                 <FileText className="h-3.5 w-3.5" />
                 Loans
