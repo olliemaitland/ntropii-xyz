@@ -155,12 +155,12 @@ export function CanvasContentSubject({
       {/* Sentinel element to detect scroll - must be in normal flow */}
       <div ref={sentinelRef} className="h-px w-full" />
 
-      {/* Sticky header - top-[57px] accounts for CanvasHeader height */}
+      {/* Sticky header - top-[56px] accounts for CanvasHeader height (no gap) */}
       <div
         ref={headerRef}
         className={cn(
-          "sticky top-[57px] z-20 bg-background transition-all duration-200 px-6 pt-6",
-          isMinimized && "shadow-md border-b pb-3"
+          "sticky top-[56px] z-20 bg-background transition-all duration-200 px-6",
+          isMinimized ? "shadow-md border-b pt-2 pb-2" : "pt-6"
         )}
       >
         {/* Full header when not minimized */}
@@ -247,7 +247,7 @@ export function CanvasContentSubject({
         {/* Minimized header when scrolled */}
         <div className={cn(
           "transition-all duration-200 overflow-hidden",
-          isMinimized ? "max-h-20 opacity-100 py-3" : "max-h-0 opacity-0"
+          isMinimized ? "max-h-16 opacity-100 py-1" : "max-h-0 opacity-0"
         )}>
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -280,13 +280,25 @@ export function CanvasContentSubject({
         {/* Tabs - always visible and sticky */}
         <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
           <TabsList className={cn(
-            "h-12 w-full max-w-md",
-            isMinimized && "mt-0"
+            "w-full max-w-md transition-all duration-200",
+            isMinimized ? "h-9 mt-1" : "h-12"
           )}>
-            <TabsTrigger value="performance" className="h-10 flex-1 text-base font-semibold">
+            <TabsTrigger 
+              value="performance" 
+              className={cn(
+                "flex-1 font-semibold transition-all duration-200",
+                isMinimized ? "h-7 text-sm" : "h-10 text-base"
+              )}
+            >
               Performance
             </TabsTrigger>
-            <TabsTrigger value="loans" className="h-10 flex-1 text-base font-semibold">
+            <TabsTrigger 
+              value="loans" 
+              className={cn(
+                "flex-1 font-semibold transition-all duration-200",
+                isMinimized ? "h-7 text-sm" : "h-10 text-base"
+              )}
+            >
               Loans
             </TabsTrigger>
           </TabsList>
