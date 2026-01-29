@@ -24,16 +24,16 @@ function formatCurrency(value: number): string {
   return `$${value.toFixed(0)}`;
 }
 
-function getPoolStatusVariant(status: PoolStatus): "default" | "secondary" | "destructive" | "outline" {
+function getPoolStatusStyles(status: PoolStatus): string {
   switch (status) {
     case "open":
-      return "default";
+      return "bg-emerald-500/10 text-emerald-600 border-emerald-500/20";
     case "closed":
-      return "secondary";
+      return "bg-muted text-muted-foreground border-muted";
     case "defaulted":
-      return "destructive";
+      return "bg-red-500/10 text-red-600 border-red-500/20";
     default:
-      return "outline";
+      return "";
   }
 }
 
@@ -63,7 +63,13 @@ export function CanvasSidebar({
                   <span className="text-sm font-medium text-foreground line-clamp-1">
                     {pool.name}
                   </span>
-                  <Badge variant={getPoolStatusVariant(pool.status)} className="capitalize shrink-0 text-xs">
+                  <Badge 
+                    variant="outline" 
+                    className={cn(
+                      "capitalize shrink-0 text-xs px-2 py-0.5",
+                      getPoolStatusStyles(pool.status)
+                    )}
+                  >
                     {pool.status}
                   </Badge>
                 </div>
