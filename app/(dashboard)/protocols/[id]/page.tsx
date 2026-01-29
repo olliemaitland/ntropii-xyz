@@ -148,13 +148,13 @@ export default function ProtocolPage() {
         {/* Main Content - with left margin to account for fixed sidebar */}
         <main className="flex-1 overflow-auto ml-72">
           {selectedPool ? (
-            <CanvasContentSubject
-              pool={selectedPool}
-              extendedPool={extendedPool}
-              capitalFlowData={capitalFlowsResponse?.data}
-              activeTab={activeTab}
-              onTabChange={setActiveTab}
-            >
+              <CanvasContentSubject
+                pool={selectedPool}
+                extendedPool={extendedPool}
+                capitalFlowData={capitalFlowsResponse?.data}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+              >
               {activeTab === "performance" && (
                 <div className="space-y-6">
                   <CapitalFlowChart
