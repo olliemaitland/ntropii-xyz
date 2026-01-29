@@ -168,90 +168,87 @@ export function CanvasContentBanner({
           isMinimized ? "py-3" : "py-5"
         )}>
           {/* Main banner row */}
-          <div className="flex items-center justify-between gap-6">
-            {/* Left: Title and trend */}
-            <div className="flex items-center gap-3 min-w-0">
-              <h1 className={cn(
-                "font-semibold text-foreground truncate transition-all duration-200",
-                isMinimized ? "text-base" : "text-xl"
-              )}>
-                {pool.name}
-              </h1>
-              {isPositiveChange ? (
-                <TrendingUp className={cn(
-                  "shrink-0 text-emerald-500 transition-all duration-200",
-                  isMinimized ? "h-4 w-4" : "h-5 w-5"
-                )} />
-              ) : (
-                <TrendingDown className={cn(
-                  "shrink-0 text-red-500 transition-all duration-200",
-                  isMinimized ? "h-4 w-4" : "h-5 w-5"
-                )} />
-              )}
-            </div>
-
-            {/* Center: Key metrics */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <Badge variant="secondary" className={cn(
-                "font-mono transition-all duration-200",
-                isMinimized ? "text-xs px-2 py-0.5" : "text-sm px-2.5 py-1"
-              )}>
-                TVL {formatCurrency(pool.tvl)}
-              </Badge>
-
-              {nav && !isMinimized && (
-                <Badge variant="secondary" className="font-mono text-sm px-2.5 py-1">
-                  NAV {formatCurrency(nav)}
-                </Badge>
-              )}
-
-              <Badge
-                variant={pool.status === "open" ? "default" : "outline"}
-                className={cn(
-                  "transition-all duration-200",
-                  pool.status === "open"
-                    ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
-                    : pool.status === "defaulted"
-                      ? "bg-red-500/10 text-red-600 border-red-500/20"
-                      : "",
-                  isMinimized ? "text-xs px-2 py-0.5" : "text-sm px-2.5 py-1"
+          <div className="flex items-start justify-between gap-6">
+            {/* Left: Title, trend and chips */}
+            <div className="flex flex-col gap-2 min-w-0 flex-1">
+              {/* Title row */}
+              <div className="flex items-center gap-3">
+                <h1 className={cn(
+                  "font-semibold text-foreground transition-all duration-200",
+                  isMinimized ? "text-base" : "text-xl"
+                )}>
+                  {pool.name}
+                </h1>
+                {isPositiveChange ? (
+                  <TrendingUp className={cn(
+                    "shrink-0 text-emerald-500 transition-all duration-200",
+                    isMinimized ? "h-4 w-4" : "h-5 w-5"
+                  )} />
+                ) : (
+                  <TrendingDown className={cn(
+                    "shrink-0 text-red-500 transition-all duration-200",
+                    isMinimized ? "h-4 w-4" : "h-5 w-5"
+                  )} />
                 )}
-              >
-                {pool.status.charAt(0).toUpperCase() + pool.status.slice(1)}
-              </Badge>
+              </div>
 
-              <Badge variant="secondary" className={cn(
-                "transition-all duration-200",
-                isMinimized ? "text-xs px-2 py-0.5" : "text-sm px-2.5 py-1"
-              )}>
-                {loanSummary?.active || pool.activeLoansCount} Loans
-              </Badge>
-
-              {!isMinimized && (
-                <Badge variant="outline" className="text-sm px-2.5 py-1">
-                  {pool.protocolId
-                    .split("-")
-                    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-                    .join(" ")}
+              {/* Chips row - under the pool name */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <Badge variant="secondary" className={cn(
+                  "font-mono transition-all duration-200",
+                  isMinimized ? "text-xs px-2 py-0.5" : "text-sm px-2.5 py-1"
+                )}>
+                  TVL {formatCurrency(pool.tvl)}
                 </Badge>
-              )}
 
-              {!isMinimized && extendedPool?.asset && (
-                <Badge variant="outline" className="font-mono text-sm px-2.5 py-1">
-                  {extendedPool.asset.symbol}
+                <Badge
+                  variant={pool.status === "open" ? "default" : "outline"}
+                  className={cn(
+                    "transition-all duration-200",
+                    pool.status === "open"
+                      ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                      : pool.status === "defaulted"
+                        ? "bg-red-500/10 text-red-600 border-red-500/20"
+                        : "",
+                    isMinimized ? "text-xs px-2 py-0.5" : "text-sm px-2.5 py-1"
+                  )}
+                >
+                  {pool.status.charAt(0).toUpperCase() + pool.status.slice(1)}
                 </Badge>
-              )}
 
-              {!isMinimized && loanSummary && loanSummary.defaulted > 0 && (
-                <Badge variant="destructive" className="text-sm px-2.5 py-1">
-                  {loanSummary.defaulted} Defaulted
+                <Badge variant="secondary" className={cn(
+                  "transition-all duration-200",
+                  isMinimized ? "text-xs px-2 py-0.5" : "text-sm px-2.5 py-1"
+                )}>
+                  {loanSummary?.active || pool.activeLoansCount} Loans
                 </Badge>
-              )}
+
+                {!isMinimized && (
+                  <Badge variant="outline" className="text-sm px-2.5 py-1">
+                    {pool.protocolId
+                      .split("-")
+                      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+                      .join(" ")}
+                  </Badge>
+                )}
+
+                {!isMinimized && extendedPool?.asset && (
+                  <Badge variant="outline" className="font-mono text-sm px-2.5 py-1">
+                    {extendedPool.asset.symbol}
+                  </Badge>
+                )}
+
+                {!isMinimized && loanSummary && loanSummary.defaulted > 0 && (
+                  <Badge variant="destructive" className="text-sm px-2.5 py-1">
+                    {loanSummary.defaulted} Defaulted
+                  </Badge>
+                )}
+              </div>
             </div>
 
             {/* Right: Chart (hidden when minimized) */}
             <div className={cn(
-              "flex flex-col items-end gap-1 transition-all duration-200",
+              "flex flex-col items-end gap-1 shrink-0 transition-all duration-200",
               isMinimized ? "opacity-0 w-0 overflow-hidden" : "opacity-100"
             )}>
               <span className="text-xs text-muted-foreground">6 Month Trend</span>
