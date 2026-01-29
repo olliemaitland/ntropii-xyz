@@ -152,8 +152,8 @@ export function CanvasContentBanner({
 
   return (
     <>
-      {/* Sentinel element to detect scroll */}
-      <div ref={sentinelRef} className="h-px w-full" />
+      {/* Sentinel element to detect scroll - positioned 20px down to create buffer before collapse */}
+      <div ref={sentinelRef} className="h-5 w-full" />
 
       {/* Sticky banner - top-[56px] accounts for CanvasHeader height */}
       <div
