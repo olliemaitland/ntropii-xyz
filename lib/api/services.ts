@@ -11,6 +11,13 @@ import type {
   LoanFilters,
   EventFilters,
   PaginatedResponse,
+  CapitalFlowResponse,
+  CapitalFlowFilters,
+  PoolExtended,
+  PoolCapacityResponse,
+  PoolCapacityFilters,
+  PoolVelocityResponse,
+  PoolVelocityFilters,
 } from "./types";
 import {
   mockSummary,
@@ -21,6 +28,10 @@ import {
   mockLoanEvents,
   getProtocolWithPools,
   getPoolWithLoans,
+  generateCapitalFlowData,
+  getPoolExtended,
+  generatePoolCapacityData,
+  generatePoolVelocityData,
 } from "./mocks";
 
 // Simulate network delay
@@ -198,4 +209,37 @@ export async function getLoanEvents(
       totalPages,
     },
   };
+}
+
+// Capital Flows
+export async function getPoolCapitalFlows(
+  poolId: string,
+  filters?: CapitalFlowFilters
+): Promise<CapitalFlowResponse> {
+  await delay(100);
+  return generateCapitalFlowData(poolId, filters);
+}
+
+// Extended Pool Data
+export async function getPoolExtendedData(poolId: string): Promise<PoolExtended | null> {
+  await delay(100);
+  return getPoolExtended(poolId);
+}
+
+// Pool Capacity
+export async function getPoolCapacity(
+  poolId: string,
+  filters?: PoolCapacityFilters
+): Promise<PoolCapacityResponse> {
+  await delay(100);
+  return generatePoolCapacityData(poolId, filters);
+}
+
+// Pool Velocity
+export async function getPoolVelocity(
+  poolId: string,
+  filters?: PoolVelocityFilters
+): Promise<PoolVelocityResponse> {
+  await delay(100);
+  return generatePoolVelocityData(poolId, filters);
 }

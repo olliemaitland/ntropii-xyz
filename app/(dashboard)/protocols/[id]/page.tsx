@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import useSWR from "swr";
 import { notFound } from "next/navigation";
 import { CanvasHeader } from "@/components/layout/canvas-header";
@@ -9,9 +9,15 @@ import { CanvasSidebarHeader } from "@/components/layout/canvas-sidebar-header";
 import { CanvasSidebar } from "@/components/layout/canvas-sidebar";
 import { PoolEventsTable } from "@/components/protocol/pool-events-table";
 import { LoansTable } from "@/components/protocol/loans-table";
+import { PoolDetailsCard } from "@/components/protocol/pool-details-card";
+import { CapitalFlowChart } from "@/components/protocol/capital-flow-chart";
+import { PoolCapacityChart } from "@/components/protocol/pool-capacity-chart";
+import { PoolVelocityChart } from "@/components/protocol/pool-velocity-chart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getProtocol, getPoolEvents, getLoans } from "@/lib/api/services";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getProtocol, getPoolEvents, getLoans, getPoolCapitalFlows, getPoolExtendedData, getPoolCapacity, getPoolVelocity } from "@/lib/api/services";
 import type { BreadcrumbItem } from "@/components/layout/breadcrumb";
+import type { CapitalFlowFilters, PoolCapacityFilters, PoolVelocityFilters } from "@/lib/api/types";
 
 export default function ProtocolPage() {
   const params = useParams();
@@ -39,6 +45,65 @@ export default function ProtocolPage() {
   const { data: loansResponse, isLoading: loansLoading } = useSWR(
     selectedPoolId ? `pool-loans-${selectedPoolId}` : null,
     () => getLoans({ poolId: selectedPoolId! })
+  );
+
+  const [capitalFlowPeriod, setCapitalFlowPeriod] = useState(90);
+
+  const capitalFlowFilters: CapitalFlowFilters = useMemo(() => {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - capitalFlowPeriod);
+    return {
+      granularity: capitalFlowPeriod <= 30 ? "daily" : capitalFlowPeriod <= 90 ? "daily" : "weekly",
+      start_date: startDate.toISOString().split("T")[0],
+      end_date: endDate.toISOString().split("T")[0],
+    };
+  }, [capitalFlowPeriod]);
+
+  const { data: capitalFlowsResponse, isLoading: capitalFlowsLoading } = useSWR(
+    selectedPoolId ? `pool-capital-flows-${selectedPoolId}-${capitalFlowPeriod}` : null,
+    () => getPoolCapitalFlows(selectedPoolId!, capitalFlowFilters)
+  );
+
+  const { data: extendedPool } = useSWR(
+    selectedPoolId ? `pool-extended-${selectedPoolId}` : null,
+    () => getPoolExtendedData(selectedPoolId!)
+  );
+
+  const [capacityPeriod, setCapacityPeriod] = useState(90);
+
+  const capacityFilters: PoolCapacityFilters = useMemo(() => {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - capacityPeriod);
+    return {
+      granularity: capacityPeriod <= 30 ? "daily" : capacityPeriod <= 90 ? "daily" : "weekly",
+      start_date: startDate.toISOString().split("T")[0],
+      end_date: endDate.toISOString().split("T")[0],
+    };
+  }, [capacityPeriod]);
+
+  const { data: capacityResponse, isLoading: capacityLoading } = useSWR(
+    selectedPoolId ? `pool-capacity-${selectedPoolId}-${capacityPeriod}` : null,
+    () => getPoolCapacity(selectedPoolId!, capacityFilters)
+  );
+
+  const [velocityPeriod, setVelocityPeriod] = useState(90);
+
+  const velocityFilters: PoolVelocityFilters = useMemo(() => {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - velocityPeriod);
+    return {
+      granularity: velocityPeriod <= 30 ? "daily" : "weekly",
+      start_date: startDate.toISOString().split("T")[0],
+      end_date: endDate.toISOString().split("T")[0],
+    };
+  }, [velocityPeriod]);
+
+  const { data: velocityResponse, isLoading: velocityLoading } = useSWR(
+    selectedPoolId ? `pool-velocity-${selectedPoolId}-${velocityPeriod}` : null,
+    () => getPoolVelocity(selectedPoolId!, velocityFilters)
   );
 
   if (protocolLoading) {
@@ -69,9 +134,7 @@ export default function ProtocolPage() {
         <aside className="flex w-72 shrink-0 flex-col border-r bg-background">
           <CanvasSidebarHeader
             name={protocol.name}
-            status={protocol.status}
             tvl={protocol.tvl}
-            apy={protocol.apy}
             activePoolsCount={protocol.activePoolsCount}
           />
           <CanvasSidebar
@@ -86,44 +149,74 @@ export default function ProtocolPage() {
         <main className="flex-1 overflow-auto p-6">
           {selectedPool ? (
             <div className="space-y-6">
-              <div>
-                <h1 className="text-2xl font-semibold text-foreground">{selectedPool.name}</h1>
-                <p className="text-sm text-muted-foreground">
-                  {selectedPool.assetClass.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())} | 
-                  Min deposit: ${selectedPool.minDeposit.toLocaleString()} | 
-                  Lockup: {selectedPool.lockupPeriodDays > 0 ? `${selectedPool.lockupPeriodDays} days` : "None"}
-                </p>
-              </div>
+              <PoolDetailsCard
+                pool={selectedPool}
+                extendedPool={extendedPool}
+                capitalFlowData={capitalFlowsResponse?.data}
+              />
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Events</CardTitle>
-                  <CardDescription>
-                    Deposits, withdrawals, and other activity for this pool
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <PoolEventsTable
-                    events={eventsResponse?.data || []}
-                    isLoading={eventsLoading}
-                  />
-                </CardContent>
-              </Card>
+              <Tabs defaultValue="performance" className="w-full">
+                <TabsList className="h-12 w-full max-w-md">
+                  <TabsTrigger value="performance" className="h-10 flex-1 text-base font-semibold">
+                    Performance
+                  </TabsTrigger>
+                  <TabsTrigger value="loans" className="h-10 flex-1 text-base font-semibold">
+                    Loans
+                  </TabsTrigger>
+                </TabsList>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Active Loans ({loansResponse?.data.length || 0})</CardTitle>
-                  <CardDescription>
-                    Current and historical loans for this pool
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <LoansTable
-                    loans={loansResponse?.data || []}
-                    isLoading={loansLoading}
+                <TabsContent value="performance" className="mt-6 space-y-6">
+                  <CapitalFlowChart
+                    data={capitalFlowsResponse?.data || []}
+                    isLoading={capitalFlowsLoading}
+                    onPeriodChange={setCapitalFlowPeriod}
                   />
-                </CardContent>
-              </Card>
+
+                  <PoolCapacityChart
+                    data={capacityResponse?.data || []}
+                    isLoading={capacityLoading}
+                    onPeriodChange={setCapacityPeriod}
+                  />
+
+                  <PoolVelocityChart
+                    data={velocityResponse?.data || []}
+                    isLoading={velocityLoading}
+                    onPeriodChange={setVelocityPeriod}
+                  />
+                </TabsContent>
+
+                <TabsContent value="loans" className="mt-6 space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Active Loans ({loansResponse?.data.length || 0})</CardTitle>
+                      <CardDescription>
+                        Current and historical loans for this pool
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <LoansTable
+                        loans={loansResponse?.data || []}
+                        isLoading={loansLoading}
+                      />
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Recent Events</CardTitle>
+                      <CardDescription>
+                        Deposits, withdrawals, and other activity for this pool
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <PoolEventsTable
+                        events={eventsResponse?.data || []}
+                        isLoading={eventsLoading}
+                      />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
             </div>
           ) : (
             <div className="flex h-full items-center justify-center text-muted-foreground">
