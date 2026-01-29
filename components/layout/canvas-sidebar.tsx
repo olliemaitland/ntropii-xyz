@@ -37,6 +37,52 @@ function getPoolStatusStyles(status: PoolStatus): string {
   }
 }
 
+function UtilizationGauge({ value }: { value: number }) {
+  const size = 14;
+  const strokeWidth = 2;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const progress = Math.min(Math.max(value, 0), 100);
+  const strokeDashoffset = circumference - (progress / 100) * circumference;
+  
+  // Color based on utilization
+  const getColor = () => {
+    if (value >= 90) return "#ef4444"; // red
+    if (value >= 70) return "#f97316"; // orange
+    return "#22c55e"; // green
+  };
+  
+  return (
+    <div className="flex items-center gap-1">
+      <svg width={size} height={size} className="transform -rotate-90">
+        {/* Background circle */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          className="text-muted/30"
+        />
+        {/* Progress circle */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke={getColor()}
+          strokeWidth={strokeWidth}
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+        />
+      </svg>
+      <span style={{ color: getColor() }}>{value.toFixed(0)}%</span>
+    </div>
+  );
+}
+
 export function CanvasSidebar({
   pools,
   selectedPoolId,
@@ -73,10 +119,10 @@ export function CanvasSidebar({
                     {pool.status}
                   </Badge>
                 </div>
-                <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                <div className="flex items-center gap-3 text-xs text-muted-foreground">
                   <span className="font-mono">{formatCurrency(pool.tvl)}</span>
                   <span className="font-mono">{pool.apy.toFixed(1)}% APY</span>
-                  <span>{pool.utilizationRate.toFixed(0)}% util</span>
+                  <UtilizationGauge value={pool.utilizationRate} />
                 </div>
               </button>
             </li>
