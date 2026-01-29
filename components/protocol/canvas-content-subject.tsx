@@ -139,10 +139,16 @@ export function CanvasContentSubject({
 
   useEffect(() => {
     const sentinel = sentinelRef.current;
-    if (!sentinel) return;
+    if (!sentinel) {
+      console.log("[v0] Sentinel ref not found");
+      return;
+    }
+
+    console.log("[v0] Setting up intersection observer");
 
     const observer = new IntersectionObserver(
       ([entry]) => {
+        console.log("[v0] Intersection changed:", entry.isIntersecting, "isMinimized will be:", !entry.isIntersecting);
         setIsMinimized(!entry.isIntersecting);
       },
       { threshold: 0, rootMargin: "-1px 0px 0px 0px" }
@@ -153,9 +159,9 @@ export function CanvasContentSubject({
   }, []);
 
   return (
-    <div className="relative">
-      {/* Sentinel element to detect scroll */}
-      <div ref={sentinelRef} className="absolute top-0 h-px w-full" />
+    <div>
+      {/* Sentinel element to detect scroll - must be in normal flow */}
+      <div ref={sentinelRef} className="h-px w-full" />
 
       {/* Sticky header */}
       <div
