@@ -280,13 +280,12 @@ export function CanvasContentBanner({
             </div>
 
             {/* Right: Chart (hidden when minimized) */}
-            <div className={cn(
-              "flex flex-col items-end gap-1 shrink-0 transition-all duration-200",
-              isMinimized ? "opacity-0 w-0 overflow-hidden" : "opacity-100"
-            )}>
-              <span className="text-xs text-muted-foreground">6 Month Trend</span>
-              <MicroChart data={capitalFlowData || []} />
-            </div>
+            {!isMinimized && (
+              <div className="flex flex-col items-end gap-1 shrink-0">
+                <span className="text-xs text-muted-foreground">6 Month Trend</span>
+                <MicroChart data={capitalFlowData || []} />
+              </div>
+            )}
           </div>
 
         </div>
