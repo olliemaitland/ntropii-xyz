@@ -259,7 +259,7 @@ export function CanvasContentBanner({
           {/* Tabs row - underline style */}
           <div className={cn(
             "transition-all duration-200",
-            isMinimized ? "mt-1" : "mt-4"
+            isMinimized ? "mt-1" : "mt-2"
           )}>
             <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
               <TabsList className="h-auto w-full max-w-xs bg-transparent p-0 gap-4">
