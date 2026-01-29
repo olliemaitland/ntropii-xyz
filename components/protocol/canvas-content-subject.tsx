@@ -155,11 +155,11 @@ export function CanvasContentSubject({
       {/* Sentinel element to detect scroll - must be in normal flow */}
       <div ref={sentinelRef} className="h-px w-full" />
 
-      {/* Sticky header */}
+      {/* Sticky header - top-[57px] accounts for CanvasHeader height */}
       <div
         ref={headerRef}
         className={cn(
-          "sticky top-0 z-20 bg-background transition-all duration-200 px-6 pt-6",
+          "sticky top-[57px] z-20 bg-background transition-all duration-200 px-6 pt-6",
           isMinimized && "shadow-md border-b pb-3"
         )}
       >

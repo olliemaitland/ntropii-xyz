@@ -129,7 +129,7 @@ export default function ProtocolPage() {
     <div className="flex h-full flex-col">
       <CanvasHeader breadcrumbs={breadcrumbs} />
       
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1">
         {/* Canvas Sidebar - Fixed */}
         <aside className="fixed top-[57px] left-[var(--sidebar-width)] bottom-0 flex w-72 shrink-0 flex-col border-r bg-background z-30">
           <CanvasSidebarHeader
@@ -146,7 +146,7 @@ export default function ProtocolPage() {
         </aside>
 
         {/* Main Content - with left margin to account for fixed sidebar */}
-        <main className="flex-1 ml-72 overflow-y-auto overflow-x-hidden">
+        <main className="flex-1 ml-72">
           {selectedPool ? (
             <>
               <CanvasContentSubject
