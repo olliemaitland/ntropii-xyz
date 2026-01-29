@@ -191,10 +191,7 @@ export function CanvasContentBanner({
             </div>
 
             {/* Center: Key metrics */}
-            <div className={cn(
-              "flex items-center gap-2 transition-all duration-200",
-              isMinimized ? "gap-2" : "gap-3"
-            )}>
+            <div className="flex items-center gap-2 flex-wrap">
               <Badge variant="secondary" className={cn(
                 "font-mono transition-all duration-200",
                 isMinimized ? "text-xs px-2 py-0.5" : "text-sm px-2.5 py-1"
@@ -268,25 +265,16 @@ export function CanvasContentBanner({
             isMinimized ? "mt-2" : "mt-4"
           )}>
             <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-              <TabsList className={cn(
-                "w-full max-w-md transition-all duration-200",
-                isMinimized ? "h-8" : "h-10"
-              )}>
+              <TabsList className="h-8 w-full max-w-xs">
                 <TabsTrigger 
                   value="performance" 
-                  className={cn(
-                    "flex-1 font-medium transition-all duration-200",
-                    isMinimized ? "h-6 text-xs" : "h-8 text-sm"
-                  )}
+                  className="h-6 flex-1 text-xs font-medium"
                 >
                   Performance
                 </TabsTrigger>
                 <TabsTrigger 
                   value="loans" 
-                  className={cn(
-                    "flex-1 font-medium transition-all duration-200",
-                    isMinimized ? "h-6 text-xs" : "h-8 text-sm"
-                  )}
+                  className="h-6 flex-1 text-xs font-medium"
                 >
                   Loans
                 </TabsTrigger>
