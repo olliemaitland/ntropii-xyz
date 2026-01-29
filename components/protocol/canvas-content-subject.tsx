@@ -153,16 +153,16 @@ export function CanvasContentSubject({
   }, []);
 
   return (
-    <div className="flex flex-col">
+    <div className="relative">
       {/* Sentinel element to detect scroll */}
-      <div ref={sentinelRef} className="h-0" />
+      <div ref={sentinelRef} className="absolute top-0 h-px w-full" />
 
       {/* Sticky header */}
       <div
         ref={headerRef}
         className={cn(
-          "sticky top-0 z-10 bg-background transition-all duration-200",
-          isMinimized && "shadow-sm border-b"
+          "sticky top-0 z-20 bg-background transition-all duration-200 px-6 pt-6",
+          isMinimized && "shadow-md border-b pb-3"
         )}
       >
         {/* Full header when not minimized */}
@@ -296,7 +296,7 @@ export function CanvasContentSubject({
       </div>
 
       {/* Tab content */}
-      <div className="mt-6">
+      <div className="mt-6 px-6 pb-6">
         {children}
       </div>
     </div>
