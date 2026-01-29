@@ -131,7 +131,7 @@ export default function ProtocolPage() {
       
       <div className="flex flex-1 overflow-hidden">
         {/* Canvas Sidebar - Fixed */}
-        <aside className="fixed top-[57px] left-[var(--sidebar-width)] bottom-0 flex w-72 shrink-0 flex-col border-r bg-background z-10">
+        <aside className="fixed top-[57px] left-[var(--sidebar-width)] bottom-0 flex w-72 shrink-0 flex-col border-r bg-background z-30">
           <CanvasSidebarHeader
             name={protocol.name}
             tvl={protocol.tvl}
