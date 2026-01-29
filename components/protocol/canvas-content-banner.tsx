@@ -32,8 +32,8 @@ function formatCurrency(value: number): string {
 function MicroChart({ data }: { data: CapitalFlowData[] }) {
   if (!data || data.length === 0) {
     return (
-      <svg width="80" height="32" className="text-muted">
-        <line x1="0" y1="16" x2="80" y2="16" stroke="currentColor" strokeWidth="2" strokeDasharray="4 2" />
+      <svg width="120" height="32" className="text-muted">
+        <line x1="0" y1="16" x2="120" y2="16" stroke="currentColor" strokeWidth="2" strokeDasharray="4 2" />
       </svg>
     );
   }
@@ -54,8 +54,8 @@ function MicroChart({ data }: { data: CapitalFlowData[] }) {
 
   if (monthlyData.length < 2) {
     return (
-      <svg width="80" height="32" className="text-muted">
-        <line x1="0" y1="16" x2="80" y2="16" stroke="currentColor" strokeWidth="2" strokeDasharray="4 2" />
+      <svg width="120" height="32" className="text-muted">
+        <line x1="0" y1="16" x2="120" y2="16" stroke="currentColor" strokeWidth="2" strokeDasharray="4 2" />
       </svg>
     );
   }
@@ -65,7 +65,7 @@ function MicroChart({ data }: { data: CapitalFlowData[] }) {
   const maxVal = Math.max(...values);
   const range = maxVal - minVal || 1;
 
-  const width = 80;
+  const width = 120;
   const height = 32;
   const padding = 2;
 
@@ -282,8 +282,8 @@ export function CanvasContentBanner({
             {/* Right: Chart (hidden when minimized) */}
             {!isMinimized && (
               <div className="flex flex-col items-end gap-1 shrink-0">
-                <span className="text-xs text-muted-foreground">6 Month Trend</span>
                 <MicroChart data={capitalFlowData || []} />
+                <span className="text-xs text-muted-foreground">6 month TVL</span>
               </div>
             )}
           </div>
