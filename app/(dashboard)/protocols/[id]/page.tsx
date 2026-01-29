@@ -146,7 +146,7 @@ export default function ProtocolPage() {
         </aside>
 
         {/* Main Content - with left margin to account for fixed sidebar */}
-        <main className="flex-1 overflow-auto ml-72">
+        <div className="flex-1 ml-72 overflow-y-auto overflow-x-hidden">
           {selectedPool ? (
             <>
               <CanvasContentSubject
@@ -221,7 +221,7 @@ export default function ProtocolPage() {
               Select a pool from the sidebar to view details
             </div>
           )}
-        </main>
+        </div>
       </div>
     </div>
   );
