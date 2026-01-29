@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { ChevronRight } from "lucide-react";
 import type { Pool, PoolStatus } from "@/lib/api/types";
 
 interface CanvasSidebarProps {
@@ -101,23 +102,28 @@ export function CanvasSidebar({
               <button
                 onClick={() => onPoolSelect(pool.id)}
                 className={cn(
-                  "w-full px-4 py-3 text-left transition-colors hover:bg-muted/50",
-                  selectedPoolId === pool.id && "bg-muted"
+                  "w-full px-4 py-3 text-left transition-colors hover:bg-muted/50 relative",
+                  selectedPoolId === pool.id && "bg-emerald-500/10 border-l-2 border-l-emerald-500"
                 )}
               >
                 <div className="flex items-start justify-between gap-2 mb-1">
                   <span className="text-sm font-medium text-foreground line-clamp-1">
                     {pool.name}
                   </span>
-                  <Badge 
-                    variant="outline" 
-                    className={cn(
-                      "capitalize shrink-0 text-xs px-2 py-0.5",
-                      getPoolStatusStyles(pool.status)
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Badge 
+                      variant="outline" 
+                      className={cn(
+                        "capitalize text-xs px-2 py-0.5",
+                        getPoolStatusStyles(pool.status)
+                      )}
+                    >
+                      {pool.status}
+                    </Badge>
+                    {selectedPoolId === pool.id && (
+                      <ChevronRight className="h-4 w-4 text-emerald-500" />
                     )}
-                  >
-                    {pool.status}
-                  </Badge>
+                  </div>
                 </div>
                 <div className="flex items-center gap-3 text-xs text-muted-foreground">
                   <span className="font-mono">{formatCurrency(pool.tvl)}</span>
