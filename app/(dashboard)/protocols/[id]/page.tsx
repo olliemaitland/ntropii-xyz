@@ -9,12 +9,11 @@ import { CanvasSidebarHeader } from "@/components/layout/canvas-sidebar-header";
 import { CanvasSidebar } from "@/components/layout/canvas-sidebar";
 import { PoolEventsTable } from "@/components/protocol/pool-events-table";
 import { LoansTable } from "@/components/protocol/loans-table";
-import { PoolDetailsCard } from "@/components/protocol/pool-details-card";
+import { CanvasContentSubject } from "@/components/protocol/canvas-content-subject";
 import { CapitalFlowChart } from "@/components/protocol/capital-flow-chart";
 import { PoolCapacityChart } from "@/components/protocol/pool-capacity-chart";
 import { PoolVelocityChart } from "@/components/protocol/pool-velocity-chart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getProtocol, getPoolEvents, getLoans, getPoolCapitalFlows, getPoolExtendedData, getPoolCapacity, getPoolVelocity } from "@/lib/api/services";
 import type { BreadcrumbItem } from "@/components/layout/breadcrumb";
 import type { CapitalFlowFilters, PoolCapacityFilters, PoolVelocityFilters } from "@/lib/api/types";
@@ -29,6 +28,7 @@ export default function ProtocolPage() {
   );
 
   const [selectedPoolId, setSelectedPoolId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState("performance");
 
   // Auto-select first pool when protocol loads
   useEffect(() => {
@@ -130,8 +130,8 @@ export default function ProtocolPage() {
       <CanvasHeader breadcrumbs={breadcrumbs} />
       
       <div className="flex flex-1 overflow-hidden">
-        {/* Canvas Sidebar */}
-        <aside className="flex w-72 shrink-0 flex-col border-r bg-background">
+        {/* Canvas Sidebar - Fixed */}
+        <aside className="fixed top-[57px] left-[var(--sidebar-width)] bottom-0 flex w-72 shrink-0 flex-col border-r bg-background z-10">
           <CanvasSidebarHeader
             name={protocol.name}
             tvl={protocol.tvl}
@@ -141,31 +141,22 @@ export default function ProtocolPage() {
             pools={protocol.pools}
             selectedPoolId={selectedPoolId}
             onPoolSelect={setSelectedPoolId}
-            className="flex-1"
+            className="flex-1 overflow-auto"
           />
         </aside>
 
-        {/* Main Content */}
-        <main className="flex-1 overflow-auto p-6">
+        {/* Main Content - with left margin to account for fixed sidebar */}
+        <main className="flex-1 overflow-auto p-6 ml-72">
           {selectedPool ? (
-            <div className="space-y-6">
-              <PoolDetailsCard
-                pool={selectedPool}
-                extendedPool={extendedPool}
-                capitalFlowData={capitalFlowsResponse?.data}
-              />
-
-              <Tabs defaultValue="performance" className="w-full">
-                <TabsList className="h-12 w-full max-w-md">
-                  <TabsTrigger value="performance" className="h-10 flex-1 text-base font-semibold">
-                    Performance
-                  </TabsTrigger>
-                  <TabsTrigger value="loans" className="h-10 flex-1 text-base font-semibold">
-                    Loans
-                  </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="performance" className="mt-6 space-y-6">
+            <CanvasContentSubject
+              pool={selectedPool}
+              extendedPool={extendedPool}
+              capitalFlowData={capitalFlowsResponse?.data}
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+            >
+              {activeTab === "performance" && (
+                <div className="space-y-6">
                   <CapitalFlowChart
                     data={capitalFlowsResponse?.data || []}
                     isLoading={capitalFlowsLoading}
@@ -183,9 +174,11 @@ export default function ProtocolPage() {
                     isLoading={velocityLoading}
                     onPeriodChange={setVelocityPeriod}
                   />
-                </TabsContent>
+                </div>
+              )}
 
-                <TabsContent value="loans" className="mt-6 space-y-6">
+              {activeTab === "loans" && (
+                <div className="space-y-6">
                   <Card>
                     <CardHeader>
                       <CardTitle>Active Loans ({loansResponse?.data.length || 0})</CardTitle>
@@ -215,9 +208,9 @@ export default function ProtocolPage() {
                       />
                     </CardContent>
                   </Card>
-                </TabsContent>
-              </Tabs>
-            </div>
+                </div>
+              )}
+            </CanvasContentSubject>
           ) : (
             <div className="flex h-full items-center justify-center text-muted-foreground">
               Select a pool from the sidebar to view details
