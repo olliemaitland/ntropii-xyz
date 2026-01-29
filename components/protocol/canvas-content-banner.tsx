@@ -139,11 +139,13 @@ export function CanvasContentBanner({
     const sentinel = sentinelRef.current;
     if (!sentinel) return;
 
+    // rootMargin: -56px (header) - 20px (buffer) = -76px
+    // This means the banner won't minimize until 20px of scroll past the header
     const observer = new IntersectionObserver(
       ([entry]) => {
         setIsMinimized(!entry.isIntersecting);
       },
-      { threshold: 0, rootMargin: "-57px 0px 0px 0px" }
+      { threshold: 0, rootMargin: "-76px 0px 0px 0px" }
     );
 
     observer.observe(sentinel);
@@ -152,10 +154,10 @@ export function CanvasContentBanner({
 
   return (
     <>
-      {/* Sentinel element to detect scroll - positioned 20px down to create buffer before collapse */}
-      <div ref={sentinelRef} className="h-5 w-full" />
+      {/* Sentinel element - 1px tall, used to detect scroll position */}
+      <div ref={sentinelRef} className="h-px w-full" />
 
-      {/* Sticky banner - top-[56px] accounts for CanvasHeader height */}
+      {/* Sticky banner - always sticky, changes appearance when minimized */}
       <div
         ref={headerRef}
         className={cn(
