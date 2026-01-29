@@ -14,7 +14,6 @@ interface CanvasContentSubjectProps {
   capitalFlowData?: CapitalFlowData[];
   activeTab: string;
   onTabChange: (tab: string) => void;
-  children: React.ReactNode;
 }
 
 function formatCurrency(value: number): string {
@@ -122,7 +121,6 @@ export function CanvasContentSubject({
   capitalFlowData,
   activeTab,
   onTabChange,
-  children,
 }: CanvasContentSubjectProps) {
   const [isMinimized, setIsMinimized] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
@@ -139,16 +137,10 @@ export function CanvasContentSubject({
 
   useEffect(() => {
     const sentinel = sentinelRef.current;
-    if (!sentinel) {
-      console.log("[v0] Sentinel ref not found");
-      return;
-    }
-
-    console.log("[v0] Setting up intersection observer");
+    if (!sentinel) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        console.log("[v0] Intersection changed:", entry.isIntersecting, "isMinimized will be:", !entry.isIntersecting);
         setIsMinimized(!entry.isIntersecting);
       },
       { threshold: 0, rootMargin: "-1px 0px 0px 0px" }
@@ -299,11 +291,6 @@ export function CanvasContentSubject({
             </TabsTrigger>
           </TabsList>
         </Tabs>
-      </div>
-
-      {/* Tab content */}
-      <div className="mt-6 px-6 pb-6">
-        {children}
       </div>
     </div>
   );

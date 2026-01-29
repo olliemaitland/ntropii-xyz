@@ -148,69 +148,74 @@ export default function ProtocolPage() {
         {/* Main Content - with left margin to account for fixed sidebar */}
         <main className="flex-1 overflow-auto ml-72">
           {selectedPool ? (
-            <CanvasContentSubject
-              pool={selectedPool}
-              extendedPool={extendedPool}
-              capitalFlowData={capitalFlowsResponse?.data}
-              activeTab={activeTab}
-              onTabChange={setActiveTab}
-            >
-              {activeTab === "performance" && (
-                <div className="space-y-6">
-                  <CapitalFlowChart
-                    data={capitalFlowsResponse?.data || []}
-                    isLoading={capitalFlowsLoading}
-                    onPeriodChange={setCapitalFlowPeriod}
-                  />
+            <>
+              <CanvasContentSubject
+                pool={selectedPool}
+                extendedPool={extendedPool}
+                capitalFlowData={capitalFlowsResponse?.data}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+              />
 
-                  <PoolCapacityChart
-                    data={capacityResponse?.data || []}
-                    isLoading={capacityLoading}
-                    onPeriodChange={setCapacityPeriod}
-                  />
+              {/* Tab content - rendered as sibling after sticky header */}
+              <div className="px-6 pb-6 space-y-6">
+                {activeTab === "performance" && (
+                  <>
+                    <CapitalFlowChart
+                      data={capitalFlowsResponse?.data || []}
+                      isLoading={capitalFlowsLoading}
+                      onPeriodChange={setCapitalFlowPeriod}
+                    />
 
-                  <PoolVelocityChart
-                    data={velocityResponse?.data || []}
-                    isLoading={velocityLoading}
-                    onPeriodChange={setVelocityPeriod}
-                  />
-                </div>
-              )}
+                    <PoolCapacityChart
+                      data={capacityResponse?.data || []}
+                      isLoading={capacityLoading}
+                      onPeriodChange={setCapacityPeriod}
+                    />
 
-              {activeTab === "loans" && (
-                <div className="space-y-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Active Loans ({loansResponse?.data.length || 0})</CardTitle>
-                      <CardDescription>
-                        Current and historical loans for this pool
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <LoansTable
-                        loans={loansResponse?.data || []}
-                        isLoading={loansLoading}
-                      />
-                    </CardContent>
-                  </Card>
+                    <PoolVelocityChart
+                      data={velocityResponse?.data || []}
+                      isLoading={velocityLoading}
+                      onPeriodChange={setVelocityPeriod}
+                    />
+                  </>
+                )}
 
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Recent Events</CardTitle>
-                      <CardDescription>
-                        Deposits, withdrawals, and other activity for this pool
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <PoolEventsTable
-                        events={eventsResponse?.data || []}
-                        isLoading={eventsLoading}
-                      />
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
-            </CanvasContentSubject>
+                {activeTab === "loans" && (
+                  <>
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Active Loans ({loansResponse?.data.length || 0})</CardTitle>
+                        <CardDescription>
+                          Current and historical loans for this pool
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <LoansTable
+                          loans={loansResponse?.data || []}
+                          isLoading={loansLoading}
+                        />
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Recent Events</CardTitle>
+                        <CardDescription>
+                          Deposits, withdrawals, and other activity for this pool
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <PoolEventsTable
+                          events={eventsResponse?.data || []}
+                          isLoading={eventsLoading}
+                        />
+                      </CardContent>
+                    </Card>
+                  </>
+                )}
+              </div>
+            </>
           ) : (
             <div className="flex h-full items-center justify-center text-muted-foreground p-6">
               Select a pool from the sidebar to view details
