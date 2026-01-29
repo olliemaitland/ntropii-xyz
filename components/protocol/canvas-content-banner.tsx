@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import type { Pool, PoolExtended, CapitalFlowData } from "@/lib/api/types";
-import { TrendingUp, TrendingDown } from "lucide-react";
+import { TrendingUp, TrendingDown, BarChart3, FileText } from "lucide-react";
 
 interface CanvasContentBannerProps {
   pool: Pool;
@@ -170,7 +170,10 @@ export function CanvasContentBanner({
           {/* Main banner row */}
           <div className="flex items-start justify-between gap-6">
             {/* Left: Title, trend and chips */}
-            <div className="flex flex-col gap-2 min-w-0 flex-1">
+            <div className={cn(
+              "flex flex-col min-w-0 flex-1 transition-all duration-200",
+              isMinimized ? "gap-1" : "gap-2"
+            )}>
               {/* Title row */}
               <div className="flex items-center gap-3">
                 <h1 className={cn(
@@ -256,28 +259,28 @@ export function CanvasContentBanner({
             </div>
           </div>
 
-          {/* Tabs row - underline style */}
-          <div className={cn(
-            "transition-all duration-200",
-            isMinimized ? "mt-1" : "mt-2"
-          )}>
-            <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-              <TabsList className="h-auto w-full max-w-xs bg-transparent p-0 gap-4">
-                <TabsTrigger 
-                  value="performance" 
-                  className="h-auto px-0 pb-2 text-xs font-medium rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-foreground text-muted-foreground data-[state=active]:text-foreground"
-                >
-                  Performance
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="loans" 
-                  className="h-auto px-0 pb-2 text-xs font-medium rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-foreground text-muted-foreground data-[state=active]:text-foreground"
-                >
-                  Loans
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
+        </div>
+
+        {/* Tabs row - underline style at bottom edge of banner */}
+        <div className="px-6">
+          <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
+            <TabsList className="h-auto w-full max-w-xs bg-transparent p-0 gap-6">
+              <TabsTrigger 
+                value="performance" 
+                className="h-auto px-0 pb-3 text-xs font-medium rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-foreground text-muted-foreground data-[state=active]:text-foreground flex items-center gap-1.5 -mb-px"
+              >
+                <BarChart3 className="h-3.5 w-3.5" />
+                Performance
+              </TabsTrigger>
+              <TabsTrigger 
+                value="loans" 
+                className="h-auto px-0 pb-3 text-xs font-medium rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-foreground text-muted-foreground data-[state=active]:text-foreground flex items-center gap-1.5 -mb-px"
+              >
+                <FileText className="h-3.5 w-3.5" />
+                Loans
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
       </div>
     </>
