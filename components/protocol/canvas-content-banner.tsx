@@ -198,16 +198,42 @@ export function CanvasContentBanner({
 
               {/* Chips row - under the pool name */}
               <div className="flex items-center gap-2 flex-wrap">
-                {/* Manager chip - first */}
-                <Badge variant="outline" className={cn(
-                  "transition-all duration-200",
-                  isMinimized ? "text-xs px-2 py-0.5" : "text-sm px-2.5 py-1"
-                )}>
-                  {pool.protocolId
-                    .split("-")
-                    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-                    .join(" ")}
-                </Badge>
+                {/* Manager chip - first (hidden when sticky) */}
+                {!isMinimized && (
+                  <Badge variant="outline" className="text-sm px-2.5 py-1">
+                    {pool.protocolId
+                      .split("-")
+                      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+                      .join(" ")}
+                  </Badge>
+                )}
+
+                {/* Status chip with tooltip showing creation date (hidden when sticky) */}
+                {!isMinimized && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Badge
+                          variant={pool.status === "open" ? "default" : "outline"}
+                          className={cn(
+                            "cursor-default",
+                            pool.status === "open"
+                              ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                              : pool.status === "defaulted"
+                                ? "bg-red-500/10 text-red-600 border-red-500/20"
+                                : "",
+                            "text-sm px-2.5 py-1"
+                          )}
+                        >
+                          {pool.status.charAt(0).toUpperCase() + pool.status.slice(1)}
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Created {extendedPool?.created_at ? new Date(extendedPool.created_at).toLocaleDateString() : "Unknown"}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
 
                 {/* TVL chip */}
                 <Badge variant="secondary" className={cn(
@@ -216,31 +242,6 @@ export function CanvasContentBanner({
                 )}>
                   TVL {formatCurrency(pool.tvl)}
                 </Badge>
-
-                {/* Status chip with tooltip showing creation date */}
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Badge
-                        variant={pool.status === "open" ? "default" : "outline"}
-                        className={cn(
-                          "transition-all duration-200 cursor-default",
-                          pool.status === "open"
-                            ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
-                            : pool.status === "defaulted"
-                              ? "bg-red-500/10 text-red-600 border-red-500/20"
-                              : "",
-                          isMinimized ? "text-xs px-2 py-0.5" : "text-sm px-2.5 py-1"
-                        )}
-                      >
-                        {pool.status.charAt(0).toUpperCase() + pool.status.slice(1)}
-                      </Badge>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Created {extendedPool?.created_at ? new Date(extendedPool.created_at).toLocaleDateString() : "Unknown"}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
 
                 {/* Loans chip - clickable to go to loans tab */}
                 <Badge 
@@ -253,13 +254,6 @@ export function CanvasContentBanner({
                 >
                   {loanSummary?.active || pool.activeLoansCount} Loans
                 </Badge>
-
-                {/* Asset symbol chip */}
-                {!isMinimized && extendedPool?.asset && (
-                  <Badge variant="outline" className="font-mono text-sm px-2.5 py-1">
-                    {extendedPool.asset.symbol}
-                  </Badge>
-                )}
 
                 {/* Defaulted chip with warning icon */}
                 {loanSummary && loanSummary.defaulted > 0 && (
