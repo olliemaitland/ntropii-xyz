@@ -151,7 +151,7 @@ export function CanvasContentSubject({
   }, []);
 
   return (
-    <div>
+    <>
       {/* Sentinel element to detect scroll - must be in normal flow */}
       <div ref={sentinelRef} className="h-px w-full" />
 
@@ -292,6 +292,6 @@ export function CanvasContentSubject({
           </TabsList>
         </Tabs>
       </div>
-    </div>
+    </>
   );
 }
