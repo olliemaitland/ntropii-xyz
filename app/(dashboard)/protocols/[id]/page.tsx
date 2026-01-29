@@ -9,7 +9,7 @@ import { CanvasSidebarHeader } from "@/components/layout/canvas-sidebar-header";
 import { CanvasSidebar } from "@/components/layout/canvas-sidebar";
 import { PoolEventsTable } from "@/components/protocol/pool-events-table";
 import { LoansTable } from "@/components/protocol/loans-table";
-import { CanvasContentSubject } from "@/components/protocol/canvas-content-subject";
+import { CanvasContentBanner } from "@/components/protocol/canvas-content-banner";
 import { CapitalFlowChart } from "@/components/protocol/capital-flow-chart";
 import { PoolCapacityChart } from "@/components/protocol/pool-capacity-chart";
 import { PoolVelocityChart } from "@/components/protocol/pool-velocity-chart";
@@ -149,7 +149,7 @@ export default function ProtocolPage() {
         <main className="flex-1 ml-72">
           {selectedPool ? (
             <>
-              <CanvasContentSubject
+              <CanvasContentBanner
                 pool={selectedPool}
                 extendedPool={extendedPool}
                 capitalFlowData={capitalFlowsResponse?.data}
