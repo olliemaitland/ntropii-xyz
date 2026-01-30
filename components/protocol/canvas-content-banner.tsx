@@ -139,33 +139,21 @@ export function CanvasContentBanner({
     const sentinel = sentinelRef.current;
     if (!sentinel) return;
 
-    // Track if user has scrolled - only minimize after actual scroll
-    let hasScrolled = false;
-    
+    // Use scroll listener to control minimized state based on scroll position
+    // This is more reliable than IntersectionObserver for this use case
     const handleScroll = () => {
-      if (window.scrollY > 0) {
-        hasScrolled = true;
-      }
+      // Get the sentinel's position relative to viewport
+      const rect = sentinel.getBoundingClientRect();
+      // Minimize when sentinel scrolls above the header (56px) plus buffer (20px)
+      const threshold = 76;
+      setIsMinimized(rect.top < threshold);
     };
     
+    // Initial check
+    handleScroll();
+    
     window.addEventListener('scroll', handleScroll, { passive: true });
-
-    // rootMargin: -56px (header) - 20px (buffer) = -76px
-    // This means the banner won't minimize until 20px of scroll past the header
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        // Only minimize if user has scrolled OR sentinel is truly out of view
-        // On initial load, we want expanded state
-        if (hasScrolled || window.scrollY > 20) {
-          setIsMinimized(!entry.isIntersecting);
-        }
-      },
-      { threshold: 0, rootMargin: "-76px 0px 0px 0px" }
-    );
-
-    observer.observe(sentinel);
     return () => {
-      observer.disconnect();
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
