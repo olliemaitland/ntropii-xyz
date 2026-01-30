@@ -29,6 +29,17 @@ export default function ProtocolPage() {
 
   const [selectedPoolId, setSelectedPoolId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("performance");
+  const [isBannerMinimized, setIsBannerMinimized] = useState(false);
+
+  // Sync with banner minimize state based on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsBannerMinimized(window.scrollY > 30);
+    };
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Auto-select first pool when protocol loads
   useEffect(() => {
@@ -158,8 +169,8 @@ export default function ProtocolPage() {
               />
 
               {/* Tab content - rendered as sibling after sticky header */}
-              {/* Extra top padding (pt-16) compensates for banner height change when minimizing */}
-              <div className="px-6 pb-48 pt-16 space-y-6">
+              {/* pt-8 (32px) default, pt-20 (80px) when minimized to keep first card visible */}
+              <div className={`px-6 pb-48 space-y-6 transition-all duration-200 ${isBannerMinimized ? 'pt-20' : 'pt-8'}`}>
                 {activeTab === "performance" && (
                   <>
                     <CapitalFlowChart
