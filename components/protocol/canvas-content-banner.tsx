@@ -124,7 +124,6 @@ export function CanvasContentBanner({
 }: CanvasContentBannerProps) {
   const [isMinimized, setIsMinimized] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
-  const sentinelRef = useRef<HTMLDivElement>(null);
 
   const loanSummary = extendedPool?.loan_summary;
   const nav = extendedPool?.nav;
@@ -136,27 +135,22 @@ export function CanvasContentBanner({
   const isPositiveChange = netChange >= 0;
 
   useEffect(() => {
-    const sentinel = sentinelRef.current;
-    if (!sentinel) return;
-
-    // rootMargin: -56px (header) - 20px (buffer) = -76px
-    // This means the banner won't minimize until 20px of scroll past the header
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsMinimized(!entry.isIntersecting);
-      },
-      { threshold: 0, rootMargin: "-76px 0px 0px 0px" }
-    );
-
-    observer.observe(sentinel);
-    return () => observer.disconnect();
+    // Simple scroll-based approach: minimize after scrolling 30px
+    const handleScroll = () => {
+      setIsMinimized(window.scrollY > 30);
+    };
+    
+    // Initial state based on current scroll position
+    handleScroll();
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   return (
     <>
-      {/* Sentinel element - 1px tall, used to detect scroll position */}
-      <div ref={sentinelRef} className="h-px w-full" />
-
       {/* Sticky banner - always sticky, changes appearance when minimized */}
       <div
         ref={headerRef}
