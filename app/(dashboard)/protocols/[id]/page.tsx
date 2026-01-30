@@ -158,7 +158,8 @@ export default function ProtocolPage() {
               />
 
               {/* Tab content - rendered as sibling after sticky header */}
-              <div className="px-6 pb-48 pt-8 space-y-6">
+              {/* Extra top padding (pt-12) compensates for banner height change when minimizing */}
+              <div className="px-6 pb-48 pt-12 space-y-6">
                 {activeTab === "performance" && (
                   <>
                     <CapitalFlowChart
