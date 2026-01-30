@@ -135,9 +135,9 @@ export function CanvasContentBanner({
   const isPositiveChange = netChange >= 0;
 
   useEffect(() => {
-    // Simple scroll-based approach: minimize after scrolling 20px
+    // Simple scroll-based approach: minimize after scrolling 30px
     const handleScroll = () => {
-      setIsMinimized(window.scrollY > 20);
+      setIsMinimized(window.scrollY > 30);
     };
     
     // Initial state based on current scroll position
